@@ -1,0 +1,35 @@
+;;
+;;
+;;
+Control group;C01;0.52
+;C02;0.53
+;C03;0.54
+;C04;0.65
+;C05;0.44
+;C06;0.58
+Average;;0.54
+Stdev;;0.07
+Pyridostigmine group;P01;0.57
+;P02;0.51
+;P03;0.73
+;P04;0.59
+;P05;0.49
+;P06;0.64
+Average;;0.59
+Stdev;;0.09
+Isoprenaline group;I01;0.86
+;I02;0.88
+;I03;0.89
+;I04;0.77
+;I05;
+;I06;0.99
+Average;;0.88
+Stdev;;0.08
+Isoprenaline + pyridostigmine group;IP01;
+;IP02;0.69
+;IP03;0.83
+;IP04;0.82
+;IP05;0.70
+;IP06;0.86
+Average;;0.78
+Stdev;;0.08

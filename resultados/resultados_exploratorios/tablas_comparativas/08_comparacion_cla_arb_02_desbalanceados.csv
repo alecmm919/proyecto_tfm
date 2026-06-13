@@ -1,0 +1,7 @@
+"","grupo","separado_clasica","separado_arbol","magnitude"
+"1","E1794D-Q1785H",TRUE,TRUE,"large"
+"2","E1794D-R1753T",TRUE,TRUE,"large"
+"3","E1794D-V1804D",FALSE,TRUE,"small"
+"4","Q1785H-R1753T",FALSE,FALSE,"negligible"
+"5","Q1785H-V1804D",FALSE,TRUE,"moderate"
+"6","R1753T-V1804D",FALSE,TRUE,"large"
