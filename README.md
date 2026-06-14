@@ -1,12 +1,22 @@
 # Proyecto: Comparación entre técnicas de estadística clásica y de *machine learning* en entornos bioinformáticos.
 
-# *Scripts*
+Este repositorio se ha elaborado y publicado con el único propósito de su evaluación académica.
+
+## Lenguajes usados: ```R``` (100%).
+
+# Estructura del proyecto
+
+## Directorio de pruebas
+
+Contiene pruebas realizadas a lo largo del proyecto y *no deben considerarse* como parte del mismo.
+
+## Directorio de *scripts*
 
 Todos los *scripts* comienzan con una breve descripción de su objetivo. Los *scripts* 01 - 09 tienen objetivos exploratorios. A partir del *script* 10, se realizan las pruebas con un mayor número de repeticiones para buscar patrones más fiables.
 
 Aquí se hace un breve resumen de lo que hace cada *script.*
 
-## 00_funciones.R
+### *Script 00*
 Contiene todas las funciones utilizadas a lo largo del proyecto y la semilla de reproducibilidad. Este *script* se carga al principio de cada uno de los demás:
 
 ```{r}
@@ -15,7 +25,7 @@ source("scripts/00_funciones.R")
 
 Esto se realiza así para garantizar la reproducibilidad y la carga de funciones independientemente del orden de ejecución.
 
-## *Scripts* 01, 02, 03 y 04
+### *Scripts* 01, 02, 03 y 04
 Preparan los datos reales y simulan a partir de estos. Los números 01, 02, 03 y 04 se corresponden con los cuatro casos biológicos de estudio (paramétrico, normal heterocedástico, no normal homocedástico y no normal heterocedástico respectivamente). En todos se comprueba que respetan los mismos supuestos estadísticos que los reales. Estos *scripts* se dividen en:
 
     a) Preparar y limpiar los datos.
@@ -24,22 +34,22 @@ Preparan los datos reales y simulan a partir de estos. Los números 01, 02, 03 y
     d) Simular datos desbalanceados.
     e) Simular nuevamente datos desbalanceados, como en el punto c), pero con $n=40$.
 
-## *Script* 05
+### *Script* 05
 Compara los estadísticos de los grupos reales y simulados. En los casos normales, hace pruebas $t$ y $F$ para contrastar la igualdad de medias y varianzas. En los no normales, se realiza una prueba $U$ de Mann-Whitney para contrastar igualdad de la forma de las distribuciones. En todos los casos, se ajustan los $p$ valores con el método de Holm.
 
-## *Script* 06
+### *Script* 06
 Busca diferencias entre grupos mediante un ANOVA (o una prueba no paramétrica, según el caso), con su correspondiente *post hoc.*
 
-## *Script* 07
+### *Script* 07
 Genera los árboles de decisión.
 
-## *Script* 08
+### *Script* 08
 Compara las separaciones hechas por estadística clásica y por árboles de decisión.
 
-## *Script* 09
+### *Script* 09
 Analiza y contabiliza los fallos y aciertos cometidos por los árboles en función de las características de los datos.
 
-## *Script* 10
+### *Script* 10
 A partir de este momento, se ha llegado a dos aparentes conclusiones:
     
     1) El valor de $k$ afecta a la probabilidad de acierto.
@@ -47,19 +57,19 @@ A partir de este momento, se ha llegado a dos aparentes conclusiones:
     
 Por ello, en este *script,* se generan 500 veces grupos desbalanceados, se analizan de forma similar al *script* 09, pero teniendo en cuenta la Entropía de Shannon y normalizándola. Posteriormente, se hace una regresión binomial. Al tratarse de una regresión que cuenta el número de aciertos, no normalizaremos esta segunda variable discreta.
 
-## *Script* 11
+### *Script* 11
 Hace lo mismo que el *script* 10, pero con $k = 6$.
 
-## *Script* 12
+### *Script* 12
 Hace lo mismo que el *script* 10, pero con $k = 5$.
 
-## *Script* 13
+### *Script* 13
 Repite los análisis de los *scripts* 1, 2, 3, 4, 8 y 9 pero con 500 repeticiones para ganar potencia. Es decir, se toman datos, se separan por estadística clásica y por árboles de decisión y se calculan los aciertos.
 
-## 99_correr_todo.R
+### 99_correr_todo.R
 Ejecuta todos los *scripts* en orden y actualiza el archivo sessionInfo.txt. Nótese que este archivo *solo* se actualiza tras la ejecución de este *script.*
 
-# Directorio de resultados
+## Directorio de resultados
 Los resultados de este trabajo se dividen en dos grupos: exploratorios y finales. Los exploratorios son los resultados de los *scripts* 01 - 09 y los finales, del 10 en adelante. Estos últimos aumentan el número de repeticiones a 500 para buscar mayor potencia.
 
     1) analisis_aciertos contiene las salidas del *script* 09, que cuenta los aciertos de las técnicas de aprendizaje automático repitiendo una vez el experimento.
@@ -68,3 +78,4 @@ Los resultados de este trabajo se dividen en dos grupos: exploratorios y finales
     4) repeticiones contiene los resultados del *script* 13, con los experimentos repetidos 50 veces.
     5) shannon contiene los resultados de los *scripts* 10, 11 y 12, con las regresiones binomiales.
     6) tablas_comparativas muestra tablas en las que se comparan los aciertos y errores de separación de los árboles de decisión en comparación con la estadística clásica.
+    7) informes_comparativos contiene los resultados del *script* 05, que muestra que los datos simulados mantienen las propiedades estadísticas de los reales.
