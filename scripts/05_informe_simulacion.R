@@ -106,10 +106,10 @@ informe_3_normal_hetero$p_media_ajustado <- p.adjust(informe_3_normal_hetero$p_v
 informe_3_normal_hetero$p_var_ajustado <- p.adjust(informe_3_normal_hetero$p_valor_var, method = "holm")
 informe_4_no_normal_hetero$p_ajustado <- p.adjust(informe_4_no_normal_hetero$p_value, method = "holm")
 
-# Descoméntese para informes de igualdad de estadísticos.
-#View(informe_1_normal_homo)
-#View(informe_2_no_normal_homo)
-#View(informe_3_normal_hetero)
-#View(informe_4_no_normal_hetero)
+# Se guardan los informes.
+write.csv(informe_1_normal_homo, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso1.csv")
+write.csv(informe_2_no_normal_homo, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso2.csv")
+write.csv(informe_3_normal_hetero, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso3.csv")
+write.csv(informe_4_no_normal_hetero, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso4.csv")
 
 # Podemos ver que se conservan los estadísticos y distribuciones.
