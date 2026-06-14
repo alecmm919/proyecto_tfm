@@ -1,4 +1,4 @@
-# Título: u_arboles_poisson.R [DESCARTADO: NO SE CUMPLEN LOS SUPUESTOS]
+# Título: o_arboles_poisson.R
 #
 # Autor: Alejandro M.
 #

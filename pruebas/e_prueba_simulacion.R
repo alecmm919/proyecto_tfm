@@ -1,4 +1,4 @@
-# Título: e_prueba_simulacion.R [DESCARTADO]
+# Título: e_prueba_simulacion.R
 #
 # Autor: Alejandro M.
 #

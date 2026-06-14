@@ -1,4 +1,4 @@
-# Título: r_caso4_jitter.R [DESCARTADO]
+# Título: m_caso4_jitter.R
 #
 # Autor: Alejandro M.
 #

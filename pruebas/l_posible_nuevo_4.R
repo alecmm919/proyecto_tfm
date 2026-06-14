@@ -1,4 +1,4 @@
-# Título: q_posible_nuevo_4.R [DESCARTADO]
+# Título: l_posible_nuevo_4.R
 #
 # Autor: Alejandro M.
 #

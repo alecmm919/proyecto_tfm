@@ -1,4 +1,4 @@
-# Título: k_prueba_metodo_2_en_4.R [DESCARTADO]
+# Título: i_prueba_metodo_2_en_4.R
 #
 # Autor: Alejandro M.
 #

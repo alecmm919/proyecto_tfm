@@ -1,4 +1,4 @@
-# Título: f_auxiliar_2.R [DESCARTADO]
+# Título: f_auxiliar_2.R
 #
 # Autor: Alejandro M.
 #

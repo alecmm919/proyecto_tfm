@@ -1,4 +1,4 @@
-# Título: w_ejecutar_parcial.R
+# Título: q_ejecutar_parcial.R
 #
 # Autor: Alejandro M.
 #

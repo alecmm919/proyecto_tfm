@@ -1,4 +1,4 @@
-# Título: d_prueba_04.R [DESCARTADO]
+# Título: d_prueba_04.R
 #
 # Autor: Alejandro M.
 #

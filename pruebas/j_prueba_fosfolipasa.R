@@ -1,4 +1,4 @@
-# Título: l_prueba_fosfolipasa.R [DESCARTADO]
+# Título: j_prueba_fosfolipasa.R
 #
 # Autor: Alejandro M.
 #

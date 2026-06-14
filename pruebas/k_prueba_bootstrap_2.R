@@ -1,4 +1,4 @@
-# Título: p_prueba_bootstrap_2.R [DESCARTADO]
+# Título: k_prueba_bootstrap_2.R
 #
 # Autor: Alejandro M.
 #

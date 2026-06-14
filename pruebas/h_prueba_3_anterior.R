@@ -1,4 +1,4 @@
-# Título: h_prueba_3_anterior.R [DESCARTADO]
+# Título: h_prueba_3_anterior.R
 #
 # Autor: Alejandro M.
 #

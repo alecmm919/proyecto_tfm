@@ -1,4 +1,4 @@
-# Título: v_prueba_gini.R [DESCARTADO]
+# Título: p_prueba_gini.R
 #
 # Autor: Alejandro M.
 #

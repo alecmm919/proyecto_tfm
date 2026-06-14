@@ -1,4 +1,4 @@
-# Título: t_prueba_aciertos.R
+# Título: n_prueba_aciertos.R
 #
 # Autor: Alejandro M.
 #

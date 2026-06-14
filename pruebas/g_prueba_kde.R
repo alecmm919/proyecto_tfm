@@ -1,4 +1,4 @@
-# Título: g_prueba_kde.
+# Título: g_prueba_kde.R
 #
 # Autor: Alejandro M.
 #
