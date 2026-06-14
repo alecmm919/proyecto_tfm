@@ -1,14 +1,15 @@
 # Proyecto: Comparación entre técnicas de estadística clásica y de *machine learning* en entornos bioinformáticos.
 
-Este repositorio se ha elaborado y publicado con el único propósito de su evaluación académica.
+Este repositorio se ha elaborado y publicado con el *único* propósito de su evaluación académica.
 
-## Lenguajes usados: ```R``` (100%).
+## Lenguajes usados: ```R v4.5.3``` (100%).
+Para mayor información sobre las librerías cargadas, consultar ```sessionInfo.txt```.
 
 # Estructura del proyecto
 
 ## Directorio de pruebas
 
-Contiene pruebas realizadas a lo largo del proyecto y *no deben considerarse* como parte del mismo.
+Contiene pruebas auxiliares realizadas a lo largo del proyecto y *no deben considerarse* como parte del mismo.
 
 ## Directorio de *scripts*
 
@@ -17,7 +18,7 @@ Todos los *scripts* comienzan con una breve descripción de su objetivo. Los *sc
 Aquí se hace un breve resumen de lo que hace cada *script.*
 
 ### *Script 00*
-Contiene todas las funciones utilizadas a lo largo del proyecto y la semilla de reproducibilidad. Este *script* se carga al principio de cada uno de los demás:
+Contiene todas las funciones utilizadas a lo largo del proyecto y la semilla de reproducibilidad. Si fuese necesaria alguna configuración general, también se añadiría aquí. Este *script* se carga al principio de cada uno de los demás:
 
 ```{r}
 source("scripts/00_funciones.R")
@@ -70,12 +71,17 @@ Repite los análisis de los *scripts* 1, 2, 3, 4, 8 y 9 pero con 500 repeticione
 Ejecuta todos los *scripts* en orden y actualiza el archivo sessionInfo.txt. Nótese que este archivo *solo* se actualiza tras la ejecución de este *script.*
 
 ## Directorio de resultados
-Los resultados de este trabajo se dividen en dos grupos: exploratorios y finales. Los exploratorios son los resultados de los *scripts* 01 - 09 y los finales, del 10 en adelante. Estos últimos aumentan el número de repeticiones a 500 para buscar mayor potencia.
+Los resultados de este trabajo se dividen en dos grupos: exploratorios y finales. Los exploratorios son los resultados de los *scripts* 01 - 09 y los finales, del 10 en adelante. Los primeros buscan explorar las técnicas estadísticas y los árboles de decisión. Los otros, los finales, aumentan el número de repeticiones a 500 para buscar mayor potencia.
+
+### Resultados exploratorios
 
     1) analisis_aciertos contiene las salidas del *script* 09, que cuenta los aciertos de las técnicas de aprendizaje automático repitiendo una vez el experimento.
     2) arboles contiene los árboles de decisión y las matrices de confusión.
     3) comparaciones_clasicas_ad contiene las separaciones de los grupos mediante estadística clásica.
-    4) repeticiones contiene los resultados del *script* 13, con los experimentos repetidos 50 veces.
-    5) shannon contiene los resultados de los *scripts* 10, 11 y 12, con las regresiones binomiales.
-    6) tablas_comparativas muestra tablas en las que se comparan los aciertos y errores de separación de los árboles de decisión en comparación con la estadística clásica.
-    7) informes_comparativos contiene los resultados del *script* 05, que muestra que los datos simulados mantienen las propiedades estadísticas de los reales.
+    4) tablas_comparativas muestra tablas en las que se comparan los aciertos y errores de separación de los árboles de decisión en comparación con la estadística clásica.
+    5) informes_comparativos contiene los resultados del *script* 05, que muestra que los datos simulados mantienen las propiedades estadísticas de los reales.
+
+### Resultados finales
+
+    1) repeticiones contiene los resultados del *script* 13, con los experimentos repetidos 500 veces.
+    2) shannon contiene los resultados de los *scripts* 10, 11 y 12, con las regresiones binomiales.

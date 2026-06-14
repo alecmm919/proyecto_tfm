@@ -443,7 +443,7 @@ analizar_arboles_shannon <- function(datos_base, muestras_vec, nombres, metodo_c
     return(sum(clas == arbol))
 }
 
-sacar_titulo <- function(cadena){ # Saca el título para poder ser utilizado en un gráfico. Si es el grupo de desbalanceados, se queda con ese título.
+sacar_titulo <- function(cadena){ # Saca el título para poder ser utilizado en un gráfico. Si es el grupo de desbalanceados, se queda con el título 'desbalanceados'.
     if (grepl("desbalanceados", cadena)){
         tit <- "desbalanceados"
     }
