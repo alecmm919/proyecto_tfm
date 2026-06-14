@@ -377,9 +377,11 @@ calcular_aciertos <- function(lista, salida, n_grupos = 6){ # Calcula los aciert
     utils::write.csv(resultado, file = salida)
 }
 
-calcular_shannon <- function(vec){ # Calcula la entropía de Shannon. Solo funciona con vectores de cuatro elementos.
+calcular_shannon <- function(vec){ # Calcula la entropía de Shannon y la normaliza.
     suma <- sum(vec)
-    return(-sum( vec[1]/suma * log(vec[1]/suma, base = 2), vec[2]/suma * log(vec[2]/suma, base = 2), vec[3]/suma * log(vec[3]/suma, base = 2), vec[4]/suma * log(vec[4]/suma, base = 2) ))
+    p <- vec / suma
+    H <- -sum(p * log(p, base = 2))
+    return(H / log(length(vec), base = 2)) # Normaliza para que H máxima sea 1.
 }
 
 analizar_arboles_shannon <- function(datos_base, muestras_vec, nombres, metodo_clasico, columnas){ # Con esta función, analizamos los datos en función de su entropía de Shannon.
@@ -456,7 +458,7 @@ sacar_titulo <- function(cadena){ # Saca el título para poder ser utilizado en 
     return(tit)
 }
 
-hacer_regresion_binomial <- function(datos_regresion, max_aciertos, titulo_grafico, salida, color_caso = FALSE){ # Saca una regresión binomial para Shannon, la imprime en el visor y la guarda.
+hacer_regresion_binomial <- function(datos_regresion, max_aciertos, titulo_grafico, salida, color_caso = FALSE){ # Saca una regresión binomial para Shannon, la imprime en el visor y la guarda. Nótese que no se normaliza el número de aciertos por ser rigurosos con el objetivo de esta regresión.
     
     modelo <- glm(cbind(n_aciertos, max_aciertos - n_aciertos) ~ H, data = datos_regresion, family = binomial(link = "logit")
     )
