@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: En este 'script' devuelve un informe que muestra los resultados exploratorios de las comparaciones entre estadísticos reales y simulados.
+# Descripción: En este 'script' devuelve un informe que muestra los resultados exploratorios de las comparaciones entre estadísticos reales y simulados. El objetivo es comprobar si se han respetado los supuestos.
 
 # Librerías y carga:
 source("scripts/00_funciones.R")

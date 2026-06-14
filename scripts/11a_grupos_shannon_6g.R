@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: En este 'script' se repetirá lo mismo que en el 10, pero con 6 grupos. La Entropía de Shannon depende de k, así que debe normalizarse.
+# Descripción: En este 'script' se repetirá lo mismo que en el 10a y 10b, pero con 6 grupos. La Entropía de Shannon máxima depende de k, así que debe normalizarse.
 
 # Librerías y carga:
 source("scripts/00_funciones.R")

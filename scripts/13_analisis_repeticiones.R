@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: El objetivo de este 'script' es repetir muchas veces la simulación de datos, análisis y n de aciertos para buscar tendencias estadísticas ('scripts' 1-4, 8 y 9). Para ello, tomamos los 60 datos generados por los apartados c y e de los primeros 4 'scripts' y los combinamos pseudoaleatoriamente para poder extraer muestras de distintos subgrupos de datos.
+# Descripción: El objetivo de este 'script' es repetir muchas veces la simulación de datos, comparación de la separación por estadística clásica y árboles y recuento de aciertos para buscar tendencias estadísticas ('scripts' 1-4, 8 y 9). Para ello, tomamos los 60 datos generados por los apartados c y e de los primeros 4 'scripts' y los combinamos pseudoaleatoriamente para poder extraer muestras de distintos subgrupos de datos.
 
 #Librerías y carga:
 source("scripts/00_funciones.R")

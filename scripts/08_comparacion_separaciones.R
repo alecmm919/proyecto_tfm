@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: En este 'script' se pretende comparar los resultados para las distintas etapas del proyecto. Devuelve una tabla por conjunto de datos de las etapas 1, 2 y 3.
+# Descripción: En este 'script' se pretende comparar los resultados para las distintos grupos de datos simulados del proyecto. Es decir, compara, para cada caso y cada grupo, qué se ha separado por estadística clásica y qué no se ha separado. Lo mismo se realiza con los árboles de decisión. Los datos se dejan preparados para el 'script' 09.
 
 # Librerías y carga:
 source("scripts/00_funciones.R")

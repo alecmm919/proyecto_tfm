@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: En este 'script' se analizan los resultados de la comparación de aciertos entre árboles y estadística clásica.
+# Descripción: En este 'script' se analizan los resultados de la comparación de aciertos entre árboles y estadística clásica. Se cuenta el número de aciertos en cada caso.
 
 # Librerías y carga:
 source("scripts/00_funciones.R")

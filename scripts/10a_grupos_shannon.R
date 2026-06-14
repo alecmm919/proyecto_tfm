@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: En el 'script' 09c demostró que el desbalanceo de los grupos afecta al rendimiento de los árboles en todos los casos. En este 'script' se pretende hacer un nuevo análisis en el que se buscará la probabilidad de acierto del árbol en función de la entropía de Shannon de los grupos. Como se va a intentar un número relativamente alto de intentos, no se representarán árboles.
+# Descripción: En el 'script' 09, parece que el desbalanceo de los grupos afecta al rendimiento de los árboles en todos los casos. En este 'script' se pretende hacer un nuevo análisis en el que se buscará la probabilidad de acierto del árbol en función de la entropía de Shannon de los grupos. Como se va a intentar un número relativamente alto de intentos, no se representarán árboles con rpart.plot.
 
 # Librerías y carga:
 source("scripts/00_funciones.R")

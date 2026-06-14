@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: En este 'script' realizaremos una regresión binomial para buscar relaciones entre H y la probabilidad de acierto, esta vez con 5 grupos. Como H depende de k, debe normalizarse.
+# Descripción: En este 'script' realizaremos una regresión binomial para buscar relaciones entre H y la probabilidad de acierto, esta vez con 5 grupos.
 
 # Librerías y carga:
 source("scripts/00_funciones.R")

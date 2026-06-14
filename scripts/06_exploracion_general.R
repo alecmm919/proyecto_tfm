@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: En este 'script' se pretende hacer un análisis exploratorio de los datos simulados generados en los 'scripts' 1-4, de tal forma que se puedan guardar los resultados de los distintos estudios.
+# Descripción: En este 'script' se pretende hacer un análisis de los datos simulados generados en los 'scripts' 1-4 mediante técnicas de estadística clásica en función de las propiedades de cada caso.
 
 # Librerías y carga:
 source("scripts/00_funciones.R")

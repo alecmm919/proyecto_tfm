@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: Este 'script' únicamente contendrá funciones definidas por el usuario para ser usadas en otros 'scripts'. Se cargará este 'script' al inicio de todos y cada uno de los demás para garantizar reproducibilidad independientemente del orden de ejecución.
+# Descripción: Este 'script' únicamente contendrá funciones definidas para ser usadas en otros 'scripts', además de la semilla de reproducibilidad.
 
 set.seed(117) # Semilla para la reproducibilidad.
 
