@@ -111,8 +111,6 @@ for (i in 1:3){ # Este bucle, por n = 20, n = 30 y n = 40.
     }
 }
 
-aciertos <- list.files(path = "resultados/resultados_finales/repeticiones/", pattern = "^13_aciertos", full.names = TRUE)
-
 # Repetimos el mismo proceso que en 'script' 09.
 datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n20_g4.csv")
 datos_20_5 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n20_g5.csv")
