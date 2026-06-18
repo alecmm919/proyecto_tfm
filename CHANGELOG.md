@@ -2,6 +2,18 @@
 
 Todas las versiones de este proyecto quedan registradas en este archivo.
 
+## [NO PUBLICADA ACTUALMENTE]
+
+### Añadido
+- *Script* 13 como análisis extra de la entropía de Shannon para $k=3$.
+
+### Corregido
+- Títulos en el directorio de pruebas.
+- Pruebas incompletas.
+- Formato incorrecto en ```README.md```.
+- Número de los anteriores *scripts* 13 y 14, que pasan a ser 14 y 15.
+- Error "typo" en los *scripts* 10a, 11a y 12a y las consecuencias en sus resultados.
+
 ## [0.1.0-beta]
 
 ### Añadido

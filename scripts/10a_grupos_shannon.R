@@ -36,7 +36,7 @@ caso_4 <- caso_4 %>%
         grupo = ifelse(grupo == "GPR_0", "1", ifelse(grupo == "GPR_2", "2", ifelse(grupo == "GPR_3", "3", "4")))
     )
 
-# Ahora, repetimos 100 veces el mismo experimento: tomar valores pseudoaleatorios y hacer la predicción.
+# Ahora, repetimos 500 veces el mismo experimento: tomar valores pseudoaleatorios y hacer la predicción.
 resultados <- data.frame(
     H <- numeric(),
     n_aciertos <- numeric(),
@@ -87,7 +87,7 @@ for (i in 1:500){
     
     # Caso 3.
     n_aciertos <- analizar_arboles_shannon(
-        caso_2,
+        caso_3,
         vec[9:12],
         c("1", "2", "3", "4"),
         "games",

@@ -384,14 +384,16 @@ calcular_shannon <- function(vec){ # Calcula la entropía de Shannon y la normal
     return(H / log(length(vec), base = 2)) # Normaliza para que H máxima sea 1.
 }
 
-analizar_arboles_shannon <- function(datos_base, muestras_vec, nombres, metodo_clasico, columnas){ # Con esta función, analizamos los datos en función de su entropía de Shannon.
+analizar_arboles_shannon <- function(datos_base, muestras_vec, nombres, metodo_clasico, columnas){ # Con esta función, analizamos los datos en función de su entropía de Shannon
     
+    # Sacamos una muestra pseudoaleatoria.
     datos <- dplyr::bind_rows(
         lapply(
             split(datos_base, datos_base$grupo),
             function(x) {
-                g <- unique(x$grupo)
-                n <- muestras_vec[as.integer(g)]
+                g <- as.character(unique(x$grupo))
+                n <- muestras_vec[seq_along(g)]
+                
                 x[sample(nrow(x), n, replace = FALSE), ]
             }
         )
