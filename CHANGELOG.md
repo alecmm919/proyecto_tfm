@@ -13,6 +13,7 @@ Todas las versiones de este proyecto quedan registradas en este archivo.
 - Formato incorrecto en ```README.md```.
 - Número de los anteriores *scripts* 13 y 14, que pasan a ser 14 y 15.
 - Error "typo" en los *scripts* 10a, 11a y 12a y las consecuencias en sus resultados.
+- Error de títulos en las gráficas del *script* 06.
 
 ## [0.1.0-beta]
 

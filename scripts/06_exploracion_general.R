@@ -49,9 +49,9 @@ for (i in 1:length(lista_1)){
     
     plot_contrastes(caso_1, paste("Contexto paramétrico (", tit, ")"), "tukey", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_01_", tit, ".png"))
     
-    plot_contrastes(caso_2, paste("Contexto paramétrico (", tit, ")"), "dunn", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_02_", tit, ".png"))
+    plot_contrastes(caso_2, paste("Contexto no normal homocedástico (", tit, ")"), "dunn", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_02_", tit, ".png"))
     
-    plot_contrastes(caso_3, paste("Contexto paramétrico (", tit, ")"), "games-howell", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_03_", tit, ".png"))
+    plot_contrastes(caso_3, paste("Contexto normal heterocedástico (", tit, ")"), "games-howell", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_03_", tit, ".png"))
     
-    plot_contrastes(caso_4, paste("Contexto paramétrico (", tit, ")"), "dunn", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_04_", tit, ".png"))
+    plot_contrastes(caso_4, paste("Contexto no normal heterocedástico (", tit, ")"), "dunn", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_04_", tit, ".png"))
 }
