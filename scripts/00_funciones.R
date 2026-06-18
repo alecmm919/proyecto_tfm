@@ -460,65 +460,54 @@ sacar_titulo <- function(cadena){ # Saca el título para poder ser utilizado en 
     return(tit)
 }
 
-hacer_regresion_binomial <- function(datos_regresion, max_aciertos, titulo_grafico, salida, color_caso = FALSE){ # Saca una regresión binomial para Shannon, la imprime en el visor y la guarda. Nótese que no se normaliza el número de aciertos por ser rigurosos con el objetivo de esta regresión.
+hacer_regresion_binomial <- function(datos_regresion, max_aciertos, titulo_grafico, salida, color_caso = FALSE){ # Realiza una regresión COM de Poisson y devuelve el gráfico.
     
-    modelo <- glm(cbind(n_aciertos, max_aciertos - n_aciertos) ~ H, data = datos_regresion, family = binomial(link = "logit")
+    modelo <- glm(
+        cbind(n_aciertos, max_aciertos - n_aciertos) ~ H,
+        data = datos_regresion,
+        family = binomial(link = "logit")
     )
     
     print(summary(modelo))
     
-    nuevo <- data.frame(
-        H = seq(min(datos_regresion$H), max(datos_regresion$H), length.out = 100)
-    )
+    pred <- predict(modelo, type = "response")
     
-    pred <- predict(modelo, newdata = nuevo, type = "link", se.fit = TRUE)
+    ord <- order(datos_regresion$H)
     
-    pp_H <- data.frame( # Saca las probabilidades.
-        H = nuevo$H,
-        probabilidad = plogis(pred$fit),
-        probabilidad_li = plogis(pred$fit - 1.96 * pred$se.fit),
-        probabilidad_ls = plogis(pred$fit + 1.96 * pred$se.fit)
-    ) %>%
-        dplyr::mutate(
-            aciertos_esperados = probabilidad * max_aciertos,
-            aciertos_li = probabilidad_li * max_aciertos,
-            aciertos_ls = probabilidad_ls * max_aciertos
-        )
+    # Abrir dispositivo gráfico para guardar
+    png(filename = salida, width = 800, height = 600, res = 120)
     
-    if (color_caso){ # Para separar por caso en la global.
+    if (color_caso) {
+        cols <- as.numeric(factor(datos_regresion$caso))
         
-        grafico <- ggplot2::ggplot(datos_regresion, ggplot2::aes(x = H, y = n_aciertos)) +
-            ggplot2::geom_jitter(ggplot2::aes(color = factor(caso)), width = 0, height = 0.12, alpha = 0.35)
+        plot(datos_regresion$H, datos_regresion$n_aciertos,
+             col = cols,
+             pch = 16,
+             xlab = "H",
+             ylab = "Número de aciertos",
+             main = titulo_grafico,
+             ylim = c(0, max_aciertos))
+        
+        legend("topleft", legend = levels(factor(datos_regresion$caso)),
+               col = 1:length(unique(cols)), pch = 16, title = "Caso")
         
     } else {
         
-        grafico <- ggplot2::ggplot(datos_regresion, ggplot2::aes(x = H, y = n_aciertos)) +
-            ggplot2::geom_jitter(width = 0, height = 0.12, alpha = 0.35)
+        plot(datos_regresion$H, datos_regresion$n_aciertos,
+             pch = 16,
+             xlab = "H",
+             ylab = "Número de aciertos",
+             main = titulo_grafico,
+             ylim = c(0, max_aciertos))
     }
     
-    grafico <- grafico +
-        ggplot2::geom_ribbon(data = pp_H, ggplot2::aes(x = H, ymin = aciertos_li, ymax = aciertos_ls), inherit.aes = FALSE, alpha = 0.2, fill = "steelblue") +
-        ggplot2::geom_line(data = pp_H, ggplot2::aes(x = H, y = aciertos_esperados), inherit.aes = FALSE, color = "steelblue", linewidth = 1.2)
+    # Línea del modelo
+    lines(datos_regresion$H[ord], pred[ord] * max_aciertos,
+          col = "blue", lwd = 2)
     
-    if (color_caso){
-        
-        grafico <- grafico +
-            ggplot2::coord_cartesian(ylim = c(0, max_aciertos)) +
-            ggplot2::labs(title = titulo_grafico, x = "H", y = "Número de aciertos", color = "Caso") +
-            ggplot2::theme_minimal()
-        
-    } else {
-        
-        grafico <- grafico +
-            ggplot2::coord_cartesian(ylim = c(0, max_aciertos)) +
-            ggplot2::labs(title = titulo_grafico, x = "H", y = "Número de aciertos") +
-            ggplot2::theme_minimal()
-    }
-    
-    print(grafico)
-    
-    ggplot2::ggsave(filename = salida, plot = grafico, width = 8, height = 6, dpi = 300)
+    dev.off()
 }
+
 
 escribir_resultado <- function(datos_corte, clasica, archivo, homocedastico) { # Compara árboles y estadística clásica pero va guardando los resultados de las iteraciones.
     temporal <- tempfile(fileext = ".csv")

@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: En este 'script' realizaremos una regresión binomial para buscar relaciones entre H y la probabilidad de acierto, esta vez con 6 grupos.
+# Descripción: En este 'script' realizaremos una regresión para buscar relaciones entre H y la probabilidad de acierto, esta vez con 6 grupos.
 
 # Librerías y carga:
 source("scripts/00_funciones.R")
@@ -30,7 +30,7 @@ for (i in 1:4){
     hacer_regresion_binomial(
         datos_regresion = datos_corte,
         max_aciertos = 15,
-        titulo_grafico = paste0("Regresión binomial, caso ", i),
+        titulo_grafico = paste0("Regresión CMP, caso ", i),
         salida = paste0(
             "resultados/resultados_finales/shannon/11b_regresion_binomial_6grupos_0",
             i,
@@ -51,7 +51,7 @@ datos_global <- datos %>%
 hacer_regresion_binomial(
     datos_regresion = datos_global,
     max_aciertos = 15,
-    titulo_grafico = "Regresión binomial global",
+    titulo_grafico = "Regresión CMP global",
     salida = "resultados/resultados_finales/shannon/11b_regresion_global_6grupos.png",
     color_caso = TRUE
 )

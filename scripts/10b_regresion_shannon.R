@@ -2,7 +2,7 @@
 #
 # Autor: Alejandro M.
 #
-# Descripción: En este 'script' realizaremos una regresión binomial para buscar relaciones entre H y la probabilidad de acierto.
+# Descripción: En este 'script' realizaremos una regresión COM-Poisson para buscar relaciones entre H y la probabilidad de acierto.
 
 # Librerías y carga:
 source("scripts/00_funciones.R")
@@ -16,7 +16,7 @@ library(MASS)
 
 datos <- read_csv("resultados/resultados_finales/shannon/10a_entropia_shannon.csv")
 
-# Al tratarse de una variable de conteo, utilizaremos la regresión binomial porque la media es mucho mayor que la varianza:
+# Al tratarse de una variable de conteo, utilizaremos la regresión COM-Poisson porque la media es mucho mayor que la varianza:
 mean(datos[datos$caso == 1, ]$H)
 mean(datos[datos$caso == 2, ]$H)
 mean(datos[datos$caso == 3, ]$H)
@@ -40,7 +40,7 @@ for (i in 1:4){
     hacer_regresion_binomial(
         datos_regresion = datos_corte,
         max_aciertos = 6,
-        titulo_grafico = paste0("Regresión binomial, caso ", i),
+        titulo_grafico = paste0("Regresión CMP, caso ", i),
         salida = paste0(
             "resultados/resultados_finales/shannon/10b_regresion_binomial_0",
             i,
@@ -61,7 +61,7 @@ datos_global <- datos %>%
 hacer_regresion_binomial(
     datos_regresion = datos_global,
     max_aciertos = 6,
-    titulo_grafico = "Regresión binomial global",
+    titulo_grafico = "Regresión CMP global",
     salida = "resultados/resultados_finales/shannon/10b_regresion_global.png",
     color_caso = TRUE
 )

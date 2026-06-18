@@ -6,6 +6,7 @@ Todas las versiones de este proyecto quedan registradas en este archivo.
 
 ### Añadido
 - *Script* 13 como análisis extra de la entropía de Shannon para $k=3$.
+- Regresiones de Conway-Maxwell Poisson.
 
 ### Corregido
 - Títulos en el directorio de pruebas.

@@ -56,7 +56,7 @@ A partir de este momento, se ha llegado a dos aparentes conclusiones:
 - El valor de $k$ afecta a la probabilidad de acierto.
 - La parametricidad o ausencia de ella también afecta a la probabilidad de acierto.
     
-Por ello, en este *script,* se generan 500 veces grupos desbalanceados, se analizan de forma similar al *script* 09, pero teniendo en cuenta la Entropía de Shannon y normalizándola. Posteriormente, se hace una regresión binomial. Al tratarse de una regresión que cuenta el número de aciertos, no normalizaremos esta segunda variable discreta.
+Por ello, en este *script,* se generan 500 veces grupos desbalanceados, se analizan de forma similar al *script* 09, pero teniendo en cuenta la Entropía de Shannon y normalizándola. Posteriormente, se hace una regresión de Conway-Maxwell Poisson. Al tratarse de una regresión que cuenta el número de aciertos, no normalizaremos esta segunda variable discreta.
 
 ### *Script* 11
 Hace lo mismo que el *script* 10, pero con $k = 6$.
