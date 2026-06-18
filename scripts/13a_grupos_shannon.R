@@ -22,7 +22,7 @@ caso_1 <- caso_1 %>%
         grupo = ifelse(grupo == "B", "1", ifelse(grupo == "C", "2", ifelse(grupo == "I", "3", "4")))
     )
 
-caso_1 <- subset(caso_1, grupo != "3")
+caso_1 <- subset(caso_1, grupo != "2")
 
 caso_2$X <- NULL
 caso_2 <- caso_2 %>%
@@ -42,7 +42,7 @@ caso_4 <- caso_4 %>%
         grupo = ifelse(grupo == "GPR_0", "1", ifelse(grupo == "GPR_2", "2", ifelse(grupo == "GPR_3", "3", "4")))
     )
 
-caso_4 <- subset(caso_4, grupo != "3")
+caso_4 <- subset(caso_4, grupo != "2")
 
 # Ahora, repetimos 500 veces el mismo experimento: tomar valores pseudoaleatorios y hacer la predicción.
 resultados <- data.frame(
@@ -59,7 +59,7 @@ for (i in 1:500){
     n_aciertos <- analizar_arboles_shannon(
         caso_1,
         vec[1:3],
-        c("B", "C", "P"),
+        c("B", "I", "P"),
         "tukey",
         NULL
     )
@@ -116,7 +116,7 @@ for (i in 1:500){
     n_aciertos <- analizar_arboles_shannon(
         caso_4,
         vec[10:12],
-        c("GPR_0", "GPR_2", "GPR_4"),
+        c("GPR_0", "GPR_3", "GPR_4"),
         "dunn",
         c(2, 3, 8)
     )
@@ -132,4 +132,4 @@ for (i in 1:500){
     )
 }
 
-write_csv(resultados, file = "resultados/resultados_finales/shannon/13a_entropia_shannon.csv")
+write_csv(resultados, file = "resultados/resultados_finales/shannon/13a_entropia_shannon_3g.csv")
