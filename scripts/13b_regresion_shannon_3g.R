@@ -14,7 +14,7 @@ library(lattice)
 library(ggplot2)
 library(MASS)
 
-datos <- read_csv("resultados/resultados_finales/shannon/13a_entropia_shannon.csv")
+datos <- read_csv("resultados/resultados_finales/shannon/13a_entropia_shannon_3g.csv")
 
 # Al tratarse de una variable de conteo, utilizaremos la regresión binomial porque la media es mucho mayor que la varianza:
 mean(datos[datos$caso == 1, ]$H)
