@@ -13,6 +13,7 @@ library(car)
 library(lattice)
 library(ggplot2)
 library(MASS)
+library(RVAideMemoire)
 
 datos <- read_csv("resultados/resultados_finales/shannon/10a_entropia_shannon.csv")
 
@@ -68,5 +69,5 @@ hacer_regresion_binomial(
 
 # Estudiamos la correlación.
 for (i in 1:4){
-    print(cor.test(x = datos[datos$caso == i, ]$H, y = datos[datos$caso == i, ]$n_aciertos, method = "spearman"))
+    print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
 }

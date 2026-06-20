@@ -33,7 +33,7 @@ tabla[1:12,]$aciertos <- tabla[1:12,]$aciertos/3000 # Máximos aciertos para k =
 tabla[13:24,]$aciertos <- tabla[13:24,]$aciertos/5000 # Máximos aciertos para k = 5.
 tabla[25:36,]$aciertos <- tabla[25:36,]$aciertos/7500 # Máximos aciertos para k = 6.
 
-# Análisis 1: n, k y la naturaleza de los grupos afectan a la probabilidad de acierto: ANOVA de tres vías.
+# Análisis 1: n, k y la naturaleza de los grupos afectan a la probabilidad de acierto: ANOVA de tres vías + 'post hoc'.
 # Comprobamos supuestos.
 shapiro.test(tabla[tabla$grupo == 1,]$aciertos)
 shapiro.test(tabla[tabla$grupo == 2,]$aciertos)
@@ -52,6 +52,12 @@ tabla_1$n[c(25:36)] <- 40
 tabla_1$k <- rep(c(4, 5, 6), times = 3, each = 4)
 tabla_1$grupo <- factor(tabla_1$grupo)
 
-Anova(lm(aciertos ~ n * k * grupo, data = tabla_1), white.adjust = "hc3")
+modelo <- lm(aciertos ~ n * k * grupo, data = tabla_1)
 
-# Prueba post hoc.
+Anova(modelo, white.adjust = "hc3")
+
+vcov_hc3 <- vcovHC(modelo, type = "HC3")
+
+emmeans(modelo, pairwise ~ grupo, vcov. = vcov_hc3, adjust = "tukey")
+emmeans(modelo, pairwise ~ n | grupo, vcov. = vcov_hc3, adjust = "tukey")
+emmeans(modelo, pairwise ~ k | grupo, vcov. = vcov_hc3, adjust = "tukey")

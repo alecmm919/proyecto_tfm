@@ -2,11 +2,12 @@
 
 Todas las versiones de este proyecto quedan registradas en este archivo.
 
-## [NO PUBLICADA ACTUALMENTE]
+## [1.0]
 
 ### Añadido
 - *Script* 13 como análisis extra de la entropía de Shannon para $k=3$.
 - Regresiones de Conway-Maxwell Poisson.
+- Coeficiente $\rho$ de Spearman en lugar de $\tau$ de Kendall con sus intervalos de confianza.
 
 ### Corregido
 - Títulos en el directorio de pruebas.

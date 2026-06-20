@@ -42,7 +42,7 @@ for (i in 1:500){
             # La función de comparación da error si se le pasa un tibble como argumento.
             datos_corte <- as.data.frame(datos_corte)
             
-            archivo <- paste0("resultados/resultados_finales/repeticiones/13_comparacion_cla_arb_0", contador, "_n", n, ".csv")
+            archivo <- paste0("resultados/resultados_finales/repeticiones/14_comparacion_cla_arb_0", contador, "_n", n, ".csv")
             
             if (contador == 1) {
                 
@@ -102,25 +102,25 @@ for (i in 1:500){
 }
 
 # Ahora, calculamos los aciertos en función del tipo de datos.
-datos <- list.files(path = "resultados/resultados_finales/repeticiones/", pattern = "^13_comparacion", full.names = TRUE)
+datos <- list.files(path = "resultados/resultados_finales/repeticiones/", pattern = "^14_comparacion", full.names = TRUE)
 
 # Ahora, calculamos los aciertos en función del tipo de datos.
 for (i in 1:3){ # Este bucle, por n = 20, n = 30 y n = 40.
     for (k in 4:6){ # Este bucle itera por k.
-        calcular_aciertos(datos[c(i, 3+i, 6+i, 9+i)], paste0("resultados/resultados_finales/repeticiones/13_aciertos_n", (1+i)*10, "_g", k, ".csv"), n_grupo = k)
+        calcular_aciertos(datos[c(i, 3+i, 6+i, 9+i)], paste0("resultados/resultados_finales/repeticiones/14_aciertos_n", (1+i)*10, "_g", k, ".csv"), n_grupo = k)
     }
 }
 
 # Repetimos el mismo proceso que en 'script' 09.
-datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n20_g4.csv")
-datos_20_5 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n20_g5.csv")
-datos_20_6 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n20_g6.csv")
-datos_30_4 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n30_g4.csv")
-datos_30_5 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n30_g5.csv")
-datos_30_6 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n30_g6.csv")
-datos_40_4 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n40_g4.csv")
-datos_40_5 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n40_g5.csv")
-datos_40_6 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n40_g6.csv")
+datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g4.csv")
+datos_20_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g5.csv")
+datos_20_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g6.csv")
+datos_30_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g4.csv")
+datos_30_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g5.csv")
+datos_30_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g6.csv")
+datos_40_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g4.csv")
+datos_40_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g5.csv")
+datos_40_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g6.csv")
 
 # Sacamos el n_grupo.
 datos_20_4$X <- NULL
@@ -166,7 +166,7 @@ p <- ggplot(datos_4, aes(x = grupo, y = aciertos, fill = n_grupo)) +
 
 print(p)
 
-ggsave(filename = "resultados/resultados_finales/repeticiones/13_cambio_n_4k.png", plot = p, width = 10, height = 6, dpi = 300)
+ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_4k.png", plot = p, width = 10, height = 6, dpi = 300)
 
 p <- ggplot(datos_5, aes(x = grupo, y = aciertos, fill = n_grupo)) +
     geom_col(width = 0.75, position = "dodge") +
@@ -179,7 +179,7 @@ p <- ggplot(datos_5, aes(x = grupo, y = aciertos, fill = n_grupo)) +
 
 print(p)
 
-ggsave(filename = "resultados/resultados_finales/repeticiones/13_cambio_n_5k.png", plot = p, width = 10, height = 6, dpi = 300)
+ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_5k.png", plot = p, width = 10, height = 6, dpi = 300)
 
 p <- ggplot(datos_6, aes(x = grupo, y = aciertos, fill = n_grupo)) +
     geom_col(width = 0.75, position = "dodge") +
@@ -192,4 +192,4 @@ p <- ggplot(datos_6, aes(x = grupo, y = aciertos, fill = n_grupo)) +
 
 print(p)
 
-ggsave(filename = "resultados/resultados_finales/repeticiones/13_cambio_n_6k.png", plot = p, width = 10, height = 6, dpi = 300)
+ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_6k.png", plot = p, width = 10, height = 6, dpi = 300)
