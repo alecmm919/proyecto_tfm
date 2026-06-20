@@ -107,23 +107,24 @@ tabla_limpia <- tabla %>%
 
 tabla_limpia <- tabla_limpia[c("grupo", "acierto", "magnitude")]
 
-# Realizamos una prueba de homogeneidad chi cuadrado.
-tabla <- table(tabla_limpia$magnitude, tabla_limpia$acierto)
-chisq.test(tabla)
-chisq.test(tabla)$stdres
-
-# No parece que haya una implicación directa, revisamos por grupo.
+# Separamos por grupo.
 tabla_1 <- table(tabla_limpia$magnitude[tabla_limpia$grupo == 1], tabla_limpia$acierto[tabla_limpia$grupo == 1])
 tabla_2 <- table(tabla_limpia$magnitude[tabla_limpia$grupo == 2], tabla_limpia$acierto[tabla_limpia$grupo == 2])
 tabla_3 <- table(tabla_limpia$magnitude[tabla_limpia$grupo == 3], tabla_limpia$acierto[tabla_limpia$grupo == 3])
 tabla_4 <- table(tabla_limpia$magnitude[tabla_limpia$grupo == 4], tabla_limpia$acierto[tabla_limpia$grupo == 4])
 
-chisq.test(tabla_1)
-chisq.test(tabla_1)$stdres
-chisq.test(tabla_2)
-chisq.test(tabla_2)$stdres
-chisq.test(tabla_3)
-chisq.test(tabla_3)$stdres
-chisq.test(tabla_4)
-chisq.test(tabla_4)$stdres
-# Parece haber una relación, pero en todos los casos cambia de un tamaño de efecto al otro, así que no lo consideraremos como significativo.
+tablas <- list(tabla_1, tabla_2, tabla_3, tabla_4)
+niveles <- c("negligible", "small", "moderate", "large")
+scores <- 1:4
+
+# Sacamos el índice tau de Kendall.
+resultados <- lapply(tablas, function(tabla) {
+    tabla <- tabla[niveles, ]
+    prop_acierto <- prop.table(tabla, margin = 1)[, "1"]
+    
+    validos <- !is.na(prop_acierto)
+    
+    cor.test(scores[validos], prop_acierto[validos], method = "spearman", exact = FALSE)
+})
+
+resultados

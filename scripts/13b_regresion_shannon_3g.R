@@ -58,5 +58,5 @@ hacer_regresion_binomial(
 
 # Estudiamos la correlación.
 for (i in 1:4){
-    print(cor.test(x = datos[datos$caso == i, ]$H, y = datos[datos$caso == i, ]$n_aciertos, method = "kendall"))
+    print(cor.test(x = datos[datos$caso == i, ]$H, y = datos[datos$caso == i, ]$n_aciertos, method = "spearman"))
 }

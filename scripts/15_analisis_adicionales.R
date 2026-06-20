@@ -9,7 +9,7 @@ source("scripts/00_funciones.R")
 library(stats)
 library(rstatix)
 library(tidyverse)
-library(confintr)
+library(car)
 
 # Sacamos los datos.
 datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g4.csv")
@@ -26,20 +26,12 @@ datos_40_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n
 tabla <- rbind(datos_20_4, datos_30_4, datos_40_4, datos_20_5, datos_30_5, datos_40_5, datos_20_6, datos_30_6, datos_40_6)
 tabla$aciertos <- as.numeric(tabla$aciertos)
 
-# Análisis 1: n y k no afectan a la probabilidad de acierto: cogemos cada caso y calculamos el estadístico V de Cramer.
-cramersv(matrix(tabla[tabla$grupo == 1,]$aciertos, nrow = 3))
-cramersv(matrix(tabla[tabla$grupo == 2,]$aciertos, nrow = 3))
-cramersv(matrix(tabla[tabla$grupo == 3,]$aciertos, nrow = 3))
-cramersv(matrix(tabla[tabla$grupo == 4,]$aciertos, nrow = 3))
-
-# En todos los casos, se obtienen proporciones homogéneas de aciertos excepto en el caso 2.
-
-# Análisis 2: las probabilidades de acierto en función de la normalidad.
 # Obtenemos las probabilidades.
 tabla[1:12,]$aciertos <- tabla[1:12,]$aciertos/3000 # Máximos aciertos para k = 4.
 tabla[13:24,]$aciertos <- tabla[13:24,]$aciertos/5000 # Máximos aciertos para k = 5.
 tabla[25:36,]$aciertos <- tabla[25:36,]$aciertos/7500 # Máximos aciertos para k = 6.
 
+# Análisis 1: n, k y la naturaleza de los grupos afectan a la probabilidad de acierto: ANOVA de tres vías.
 # Comprobamos supuestos.
 shapiro.test(tabla[tabla$grupo == 1,]$aciertos)
 shapiro.test(tabla[tabla$grupo == 2,]$aciertos)
@@ -48,6 +40,14 @@ shapiro.test(tabla[tabla$grupo == 4,]$aciertos)
 
 bartlett.test(aciertos ~ grupo, data = tabla)
 
-# Las variables son normales, pero heterocedásticas: analizamos con ANOVA de Welch y 'post hoc' de Games-Howell.
-welch_anova_test(aciertos ~ grupo, data = tabla)
-games_howell_test(aciertos ~ grupo, data = tabla)
+# Las variables son normales, pero heterocedásticas: corrección HC3.
+
+# Modificamos la tabla.
+tabla_1 <- tabla
+tabla_1$n[1:12] <- 20
+tabla_1$n[c(13:24)] <- 30
+tabla_1$n[c(25:36)] <- 40
+tabla_1$k <- rep(c(4, 5, 6), times = 3, each = 4)
+tabla_1$grupo <- factor(tabla_1$grupo)
+
+Anova(lm(aciertos ~ n * k * grupo, data = tabla_1), white.adjust = "hc3")
