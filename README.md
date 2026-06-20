@@ -17,7 +17,7 @@ Todos los *scripts* comienzan con una breve descripción de su objetivo. Los *sc
 
 Aquí se hace un breve resumen de lo que hace cada *script.*
 
-### *Script 00*
+### *Script* 00
 Contiene todas las funciones utilizadas a lo largo del proyecto y la semilla de reproducibilidad. Si fuese necesaria alguna configuración general, también se añadiría aquí. Este *script* se carga al principio de cada uno de los demás:
 
 ```{r}

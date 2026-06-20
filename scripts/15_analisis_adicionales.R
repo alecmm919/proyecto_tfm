@@ -9,17 +9,18 @@ source("scripts/00_funciones.R")
 library(stats)
 library(rstatix)
 library(tidyverse)
+library(confintr)
 
 # Sacamos los datos.
-datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n20_g4.csv")
-datos_20_5 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n20_g5.csv")
-datos_20_6 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n20_g6.csv")
-datos_30_4 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n30_g4.csv")
-datos_30_5 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n30_g5.csv")
-datos_30_6 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n30_g6.csv")
-datos_40_4 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n40_g4.csv")
-datos_40_5 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n40_g5.csv")
-datos_40_6 <- read.csv("resultados/resultados_finales/repeticiones/13_aciertos_n40_g6.csv")
+datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g4.csv")
+datos_20_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g5.csv")
+datos_20_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g6.csv")
+datos_30_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g4.csv")
+datos_30_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g5.csv")
+datos_30_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g6.csv")
+datos_40_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g4.csv")
+datos_40_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g5.csv")
+datos_40_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g6.csv")
 
 # Sacamos la tabla.
 tabla <- rbind(datos_20_4, datos_30_4, datos_40_4, datos_20_5, datos_30_5, datos_40_5, datos_20_6, datos_30_6, datos_40_6)
@@ -31,10 +32,9 @@ cramersv(matrix(tabla[tabla$grupo == 2,]$aciertos, nrow = 3))
 cramersv(matrix(tabla[tabla$grupo == 3,]$aciertos, nrow = 3))
 cramersv(matrix(tabla[tabla$grupo == 4,]$aciertos, nrow = 3))
 
-# En todos los casos, se obtienen proporciones homogéneas de aciertos excepto en ell caso 2.
+# En todos los casos, se obtienen proporciones homogéneas de aciertos excepto en el caso 2.
 
 # Análisis 2: las probabilidades de acierto en función de la normalidad.
-
 # Obtenemos las probabilidades.
 tabla[1:12,]$aciertos <- tabla[1:12,]$aciertos/3000 # Máximos aciertos para k = 4.
 tabla[13:24,]$aciertos <- tabla[13:24,]$aciertos/5000 # Máximos aciertos para k = 5.
