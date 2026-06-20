@@ -10,6 +10,8 @@ library(stats)
 library(rstatix)
 library(tidyverse)
 library(car)
+library(emmeans)
+library(sandwich)
 
 # Sacamos los datos.
 datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g4.csv")
@@ -51,3 +53,5 @@ tabla_1$k <- rep(c(4, 5, 6), times = 3, each = 4)
 tabla_1$grupo <- factor(tabla_1$grupo)
 
 Anova(lm(aciertos ~ n * k * grupo, data = tabla_1), white.adjust = "hc3")
+
+# Prueba post hoc.
