@@ -117,7 +117,7 @@ tablas <- list(tabla_1, tabla_2, tabla_3, tabla_4)
 niveles <- c("negligible", "small", "moderate", "large")
 scores <- 1:4
 
-# Sacamos el índice tau de Kendall.
+# Sacamos el índice rho de Spearman.
 resultados <- lapply(tablas, function(tabla) {
     tabla <- tabla[niveles, ]
     prop_acierto <- prop.table(tabla, margin = 1)[, "1"]
