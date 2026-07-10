@@ -29,6 +29,14 @@ library(RVAideMemoire)
 library(purrr)
 
 # Parte 0: Definición de funciones ----
+Título: 00_funciones.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: Este 'script' únicamente contendrá funciones definidas para ser usadas en otros 'scripts', además de la semilla de reproducibilidad.
+
+set.seed(117) # Semilla para la reproducibilidad.
+
 simular_normal_exacto <- function(x, n, mu = NULL, s = NULL){ # Esta función genera valores normales a partir de una muestra normal.
     
     if (is.null(mu) || is.null(s)) { # Si se dan estos argumentos, se usan los parámetros pasados por el usuario. Si no, se calculan automáticamente.
@@ -44,9 +52,9 @@ simular_normal_exacto <- function(x, n, mu = NULL, s = NULL){ # Esta función ge
 comprobar_normalidad_shapiro <- function(dat, grupos, resultados){ # Hace una prueba de normalidad de Shapiro-Wilk. Devuelve solo el p-valor.
     
     dat %>%
-        group_by(across(all_of(grupos))) %>%
-        summarise(
-            n = n(),
+        dplyr::group_by(dplyr::across(dplyr::all_of(grupos))) %>%
+        dplyr::summarise(
+            n = dplyr::n(),
             p_value = shapiro.test(.data[[resultados]])$p.value,
             .groups = "drop",
         )
@@ -55,9 +63,9 @@ comprobar_normalidad_shapiro <- function(dat, grupos, resultados){ # Hace una pr
 comprobar_normalidad_kolmogorov <- function(dat, grupos, resultados){ # Hace una prueba de normalidad de Kolmogorov-Smirnof. Devuelve solo el p-valor.
     
     dat %>%
-        group_by(across(all_of(grupos))) %>%
-        summarise(
-            n = n(),
+        dplyr::group_by(dplyr::across(dplyr::all_of(grupos))) %>%
+        dplyr::summarise(
+            n = dplyr::n(),
             p_value = ks.test(.data[[resultados]], "pnorm", mean(.data[[resultados]]), sd(.data[[resultados]]))$p.value,
             .groups = "drop"
         )
@@ -67,10 +75,10 @@ comprobar_normalidad_cramer <- function(dat, grupos, resultados){ # Hace una pru
     
     suppressWarnings( # Eliminamos las advertencias porque esta función devuelve un 'warning' si el p-valor es demasiado pequeño.
         dat %>%
-            group_by(across(all_of(grupos))) %>%
-            summarise(
-                n = n(),
-                p_value = cvm.test(.data[[resultados]])$p.value,
+            dplyr::group_by(dplyr::across(dplyr::all_of(grupos))) %>%
+            dplyr::summarise(
+                n = dplyr::n(),
+                p_value = nortest::cvm.test(.data[[resultados]])$p.value,
                 .groups = "drop"
             )
     )
@@ -79,8 +87,8 @@ comprobar_normalidad_cramer <- function(dat, grupos, resultados){ # Hace una pru
 generar_estadisticos <- function(dat, grupos){ # Devuelve los estadísticos paramétricos (media y desviación estándar) de un 'tibble' en función de los factores.
     
     salida <- dat %>%
-        group_by(across(all_of(grupos))) %>%
-        summarise(
+        dplyr::group_by(dplyr::across(dplyr::all_of(grupos))) %>%
+        dplyr::summarise(
             media = mean(valor),
             dest = sd(valor)
         )
@@ -89,8 +97,8 @@ generar_estadisticos <- function(dat, grupos){ # Devuelve los estadísticos para
 generar_estadisticos_np <- function(dat, grupos){ # Devuelve los estadísticos no paramétricos (mediana y rango intercuartílico) de un 'tibble' en función de los factores.
     
     salida <- dat %>%
-        group_by(across(all_of(grupos))) %>%
-        summarise(
+        dplyr::group_by(dplyr::across(dplyr::all_of(grupos))) %>%
+        dplyr::summarise(
             mediana = median(valor),
             RI = IQR(valor)
         )
@@ -98,12 +106,12 @@ generar_estadisticos_np <- function(dat, grupos){ # Devuelve los estadísticos n
 
 comparar_estadisticos_reales_simulados <- function(tabla1, tabla2, n_1, n_2, factores){ # Compara los estadísticos de dos tablas de datos (reales y simulados) y hace una prueba t de Student para la igualdad de medias y una F para el cociente de varianzas.
     
-    inner_join(
+    dplyr::inner_join(
         tabla1, tabla2,
         by = factores,
         suffix = c("_real", "_sim") # Unimos las tablas etiquetando las columnas.
     ) %>%
-        mutate(
+        dplyr::mutate(
             # Comparación de medias con prueba t.
             dif_medias = media_real - media_sim,
             error_estandar = sqrt((dest_real^2)/n_1 + (dest_sim^2)/n_2),
@@ -120,7 +128,7 @@ comparar_estadisticos_reales_simulados <- function(tabla1, tabla2, n_1, n_2, fac
             df2 = n_2 - 1,
             p_valor_var = 2 * pmin(pf(F_var, df1, df2), pf(1 / F_var, df2, df1))
         ) %>%
-        select(
+        dplyr::select(
             -z, -error_estandar, -df1, -df2, # Quitamos lo que no es necesario.
         )
 }
@@ -138,8 +146,8 @@ comprobaciones_01 <- function(simulados, salida_datos, salida_estadisticos){ # C
     
     print(estadisticos_sim)
     
-    write_csv(simulados, salida_datos)
-    write.csv(estadisticos_sim, salida_estadisticos)
+    readr::write_csv(simulados, salida_datos)
+    utils::write.csv(estadisticos_sim, salida_estadisticos)
 }
 
 comprobaciones_02 <- function(simulados, datos_reales, salida_datos, salida_estadisticos){ # Comprueba que los datos simulados del caso 02 respetan los supuestos estadísticos de los reales. La filosofía es la misma que la de la función anterior.
@@ -155,8 +163,8 @@ comprobaciones_02 <- function(simulados, datos_reales, salida_datos, salida_esta
     print(estadisticos_real)
     print(estadisticos_sim)
     
-    write_csv(simulados, salida_datos)
-    write.csv(estadisticos_sim, salida_estadisticos)
+    readr::write_csv(simulados, salida_datos)
+    utils::write.csv(estadisticos_sim, salida_estadisticos)
 }
 
 comprobaciones_03 <- function(simulados, datos_reales, salida_datos, salida_estadisticos){ # Comprueba que los datos simulados del caso 03 respetan los supuestos estadísticos de los reales.
@@ -164,7 +172,7 @@ comprobaciones_03 <- function(simulados, datos_reales, salida_datos, salida_esta
     n_min <- min(table(simulados$grupo))
     
     print(comprobar_normalidad_shapiro(simulados, "grupo", "valor"))
-    print(leveneTest(valor ~ grupo, data=simulados)) # Los datos no son normales.
+    print(car::leveneTest(valor ~ grupo, data=simulados)) # Los datos no son normales.
     
     estadisticos_real <- generar_estadisticos(datos_reales, "grupo")
     estadisticos_sim <- generar_estadisticos(simulados, "grupo")
@@ -173,8 +181,8 @@ comprobaciones_03 <- function(simulados, datos_reales, salida_datos, salida_esta
     
     estadisticos_sim <- generar_estadisticos(simulados, "grupo")
     
-    write_csv(simulados, salida_datos)
-    write.csv(estadisticos_sim, salida_estadisticos)
+    readr::write_csv(simulados, salida_datos)
+    utils::write.csv(estadisticos_sim, salida_estadisticos)
 }
 
 comprobaciones_04 <- function(simulados, datos_reales, salida_datos, salida_estadisticos){ # Comprueba que los datos simulados del caso 04 respetan los supuestos estadísticos de los reales.
@@ -190,8 +198,8 @@ comprobaciones_04 <- function(simulados, datos_reales, salida_datos, salida_esta
     print(estadisticos_real)
     print(estadisticos_sim)
     
-    write_csv(simulados, salida_datos)
-    write.csv(estadisticos_sim, salida_estadisticos)
+    readr::write_csv(simulados, salida_datos)
+    utils::write.csv(estadisticos_sim, salida_estadisticos)
 }
 
 plot_contrastes <- function(data, titulo, metodo_posthoc = c("tukey", "dunn", "games-howell"), archivo_salida) { # Genera 'boxplots' e indica las diferencias entre grupos en función de la prueba 'post hoc' planteada.
@@ -202,30 +210,30 @@ plot_contrastes <- function(data, titulo, metodo_posthoc = c("tukey", "dunn", "g
     
     data$.grupo <- as.factor(data$grupo)
     
-    g <- ggplot(data, aes(x = .grupo, y = .data[[yvar]], fill = .grupo)) +
-        geom_boxplot(alpha = 0.8, width = 0.65, outlier.shape = 21, outlier.fill = "white", outlier.size = 2) +
-        scale_fill_discrete() +
-        theme_bw() +
-        theme(
-            plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
-            axis.title = element_text(face = "bold", size = 12),
-            axis.text = element_text(size = 10, colour = "black"),
+    g <- ggplot2::ggplot(data, ggplot2::aes(x = .grupo, y = .data[[yvar]], fill = .grupo)) +
+        ggplot2::geom_boxplot(alpha = 0.8, width = 0.65, outlier.shape = 21, outlier.fill = "white", outlier.size = 2) +
+        ggplot2::scale_fill_discrete() +
+        ggplot2::theme_bw() +
+        ggplot2::theme(
+            plot.title = ggplot2::element_text(face = "bold", hjust = 0.5, size = 16),
+            axis.title = ggplot2::element_text(face = "bold", size = 12),
+            axis.text = ggplot2::element_text(size = 10, colour = "black"),
             legend.position = "none",
-            panel.grid.major = element_line(colour = "grey"),
-            panel.grid.minor = element_blank()
+            panel.grid.major = ggplot2::element_line(colour = "grey"),
+            panel.grid.minor = ggplot2::element_blank()
         ) +
-        labs(title = titulo, x = "grupo", y = yvar)
+        ggplot2::labs(title = titulo, x = "grupo", y = yvar)
     
     formula_posthoc <- as.formula("valor ~ .grupo")
     
     post <- switch( # Elegimos el método 'post hoc'.
         metodo_posthoc,
         
-        "tukey" = tukey_hsd(data, formula_posthoc),
+        "tukey" = rstatix::tukey_hsd(data, formula_posthoc),
         
-        "dunn" = dunn_test(data, formula_posthoc, p.adjust.method = "holm"),
+        "dunn" = rstatix::dunn_test(data, formula_posthoc, p.adjust.method = "holm"),
         
-        "games-howell" = games_howell_test(data, formula_posthoc)
+        "games-howell" = rstatix::games_howell_test(data, formula_posthoc)
     )
     
     post_sig <- post[post$p.adj < 0.05, ]
@@ -241,10 +249,10 @@ plot_contrastes <- function(data, titulo, metodo_posthoc = c("tukey", "dunn", "g
         post_sig$y.position <- seq(from = ymax * 1.05, by = ymax * 0.08, length.out = nrow(post_sig))
         
         g <- g +
-            stat_pvalue_manual(post_sig, xmin = "xmin", xmax = "xmax", y.position = "y.position", label = "p.adj.signif", hide.ns = TRUE)
+            ggpubr::stat_pvalue_manual(post_sig, xmin = "xmin", xmax = "xmax", y.position = "y.position", label = "p.adj.signif", hide.ns = TRUE)
     }
     
-    ggsave(archivo_salida, g, width = 8, height = 6, dpi = 300)
+    ggplot2::ggsave(archivo_salida, g, width = 8, height = 6, dpi = 300)
     
     return(g)
 }
@@ -253,44 +261,44 @@ generar_arbol <- function(dat, salida, titulo, profundidad = NULL) { # Genera un
     
     # Para ignorar la profundidad si no se determina en la llamada.
     if (is.null(profundidad)) {
-        ctrl <- rpart.control()
+        ctrl <- rpart::rpart.control()
     } else {
-        ctrl <- rpart.control(maxdepth = profundidad)
+        ctrl <- rpart::rpart.control(maxdepth = profundidad)
     }
     
-    modelo <- rpart(valor ~ ., data = dat, method = "anova", control = ctrl)
+    modelo <- rpart::rpart(valor ~ ., data = dat, method = "anova", control = ctrl)
     
-    png(salida, width = 1600, height = 1600, res = 300)
+    grDevices::png(salida, width = 1600, height = 1600, res = 300)
     
-    rpart.plot(modelo, type = 3, fallen.leaves = TRUE, nn = FALSE, main = titulo, box.palette = "RdYlGn", branch.lty = 1, branch.lwd = 2, tweak = 1.2, faclen = 0, roundint = FALSE)
+    rpart.plot::rpart.plot(modelo, type = 3, fallen.leaves = TRUE, nn = FALSE, main = titulo, box.palette = "RdYlGn", branch.lty = 1, branch.lwd = 2, tweak = 1.2, faclen = 0, roundint = FALSE)
     
-    dev.off()
+    grDevices::dev.off()
     
     # Generamos otra vez lo mismo para que aparezca en el visor de RStudio.
-    rpart.plot(modelo, type = 3, fallen.leaves = TRUE, nn = FALSE, main = titulo, box.palette = "RdYlGn", branch.lty = 1, branch.lwd = 2, tweak = 1.2, faclen = 0, roundint = FALSE)
+    rpart.plot::rpart.plot(modelo, type = 3, fallen.leaves = TRUE, nn = FALSE, main = titulo, box.palette = "RdYlGn", branch.lty = 1, branch.lwd = 2, tweak = 1.2, faclen = 0, roundint = FALSE)
     
 }
 
 matriz_confusion <- function(dat, salida){ # Genera la matriz de confusión.
-    modelo <- rpart(grupo ~ ., data = dat, method = "class")
+    modelo <- rpart::rpart(grupo ~ ., data = dat, method = "class")
     pred <- predict(modelo, dat, type = "class")
-    conf <- confusionMatrix(data = pred, reference = dat$grupo)
+    conf <- caret::confusionMatrix(data = pred, reference = dat$grupo)
     tabla <- as.data.frame(conf$table)
     
-    p <- ggplot(tabla, aes(x = Reference, y = Prediction, fill = Freq)) +
-        geom_tile(color = "white", linewidth = 0.8) +
-        geom_text(aes(label = Freq), colour = "white", fontface = "bold", size = 5) +
-        scale_fill_gradient(low = "red", high = "green") +
-        labs(title = "Matriz de confusión", x = "Clase real", y = "Clase predicha") +
-        theme_minimal() +
-        theme(
-            plot.title = element_text(face = "bold", hjust = 0.5, size = 16),
-            axis.title = element_text(face = "bold"),
-            axis.text = element_text(colour = "black", size = 11),
-            panel.grid = element_blank()
+    p <- ggplot2::ggplot(tabla, ggplot2::aes(x = Reference, y = Prediction, fill = Freq)) +
+        ggplot2::geom_tile(color = "white", linewidth = 0.8) +
+        ggplot2::geom_text(ggplot2::aes(label = Freq), colour = "white", fontface = "bold", size = 5) +
+        ggplot2::scale_fill_gradient(low = "red", high = "green") +
+        ggplot2::labs(title = "Matriz de confusión", x = "Clase real", y = "Clase predicha") +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(
+            plot.title = ggplot2::element_text(face = "bold", hjust = 0.5, size = 16),
+            axis.title = ggplot2::element_text(face = "bold"),
+            axis.text = ggplot2::element_text(colour = "black", size = 11),
+            panel.grid = ggplot2::element_blank()
         )
     
-    ggsave(filename = salida, plot = p, width = 6, height = 5, dpi = 300)
+    ggplot2::ggsave(filename = salida, plot = p, width = 6, height = 5, dpi = 300)
     
     p
     conf
@@ -300,9 +308,9 @@ comparar_clasica_arbol_tamano <- function(datos, clasica, salida, homocedastico 
     
     # Para ignorar la profundidad si no se determina en la llamada.
     if (is.null(profundidad)) {
-        ctrl <- rpart.control()
+        ctrl <- rpart::rpart.control()
     } else {
-        ctrl <- rpart.control(maxdepth = profundidad)
+        ctrl <- rpart::rpart.control(maxdepth = profundidad)
     }
     
     # Separación por árbol.
@@ -310,7 +318,7 @@ comparar_clasica_arbol_tamano <- function(datos, clasica, salida, homocedastico 
     k <- length(levels(datos$grupo))
     
     # Modelizamos los árboles.
-    arbol <- as.data.frame(rpart(valor ~ grupo, data = datos, method = "anova", control = ctrl)$where) # Indica en qué rama termina cada observación.
+    arbol <- as.data.frame(rpart::rpart(valor ~ grupo, data = datos, method = "anova", control = ctrl)$where) # Indica en qué rama termina cada observación.
     names(arbol) <- "grupo"
     
     # Hojas alcanzadas por cada grupo.
@@ -340,7 +348,7 @@ comparar_clasica_arbol_tamano <- function(datos, clasica, salida, homocedastico 
     tabla_grupos <- table(datos$grupo)
     datos <- datos[datos$grupo %in% names(tabla_grupos[tabla_grupos >= 2]), ]
     
-    cohen <- as.data.frame(cohens_d(datos, valor ~ grupo, var.equal = homocedastico)[c(2, 3, 7)])
+    cohen <- as.data.frame(rstatix::cohens_d(datos, valor ~ grupo, var.equal = homocedastico)[c(2, 3, 7)])
     
     # Pegamos los nombre de los grupos para que sean coherentes con lo anterior.
     rownames(cohen) <- rownames(clasica)
@@ -357,22 +365,22 @@ comparar_clasica_arbol_tamano <- function(datos, clasica, salida, homocedastico 
     cohen$grupo <- rownames(cohen)
     rownames(cohen) <- NULL
     
-    resultado_1 <- inner_join(clasica, sep_arbol, by = "grupo")
-    resultado <- inner_join(resultado_1, cohen, by= "grupo")
+    resultado_1 <- dplyr::inner_join(clasica, sep_arbol, by = "grupo")
+    resultado <- dplyr::inner_join(resultado_1, cohen, by= "grupo")
     
-    resultado <- relocate(resultado, c("grupo", "separado_clasica", "separado_arbol", "magnitude"))
+    resultado <- dplyr::relocate(resultado, c("grupo", "separado_clasica", "separado_arbol", "magnitude"))
     
     # Limpieza de columnas.
     resultado <- resultado[,c("grupo", "separado_clasica", "separado_arbol", "magnitude")]
     
-    write.csv(resultado, file = salida)
+    utils::write.csv(resultado, file = salida)
 }
 
 calcular_aciertos <- function(lista, salida, n_grupos = 6){ # Calcula los aciertos de un modelo en el sentido de que se calculan cuántos grupos deberían separarse (según la estadística clásica) y cuántos separa el árbol. Hay que dar el argumento 'list' como la lista de rutas a los archivos. Hay que darle el número de etapas y grupos por etapa. Si dos grupos no existen y el árbol no los separa, también cuenta como un acierto.
     aciertos <- c()
     for (ruta in lista){
         # Leemos el archivo.
-        tabla <- read.csv(ruta)
+        tabla <- utils::read.csv(ruta)
         
         # Hacemos los cortes de grupo si en la llamada se especifica.
         if (n_grupos == 5){
@@ -397,7 +405,7 @@ calcular_aciertos <- function(lista, salida, n_grupos = 6){ # Calcula los aciert
         aciertos = aciertos
     )
     
-    write.csv(resultado, file = salida)
+    utils::write.csv(resultado, file = salida)
 }
 
 calcular_shannon <- function(vec){ # Calcula la entropía de Shannon y la normaliza.
@@ -410,7 +418,7 @@ calcular_shannon <- function(vec){ # Calcula la entropía de Shannon y la normal
 analizar_arboles_shannon <- function(datos_base, muestras_vec, nombres, metodo_clasico, columnas){ # Con esta función, analizamos los datos en función de su entropía de Shannon
     
     # Sacamos una muestra pseudoaleatoria.
-    datos <- bind_rows(
+    datos <- dplyr::bind_rows(
         lapply(
             split(datos_base, datos_base$grupo),
             function(x) {
@@ -430,11 +438,11 @@ analizar_arboles_shannon <- function(datos_base, muestras_vec, nombres, metodo_c
     }
     
     if (metodo_clasico == "dunn") {
-        clasica <- as.data.frame(dunn_test(datos, valor ~ grupo))[columnas]
+        clasica <- as.data.frame(rstatix::dunn_test(datos, valor ~ grupo))[columnas]
     }
     
     if (metodo_clasico == "games") {
-        clasica <- as.data.frame(games_howell_test(datos, valor ~ grupo))[columnas]
+        clasica <- as.data.frame(rstatix::games_howell_test(datos, valor ~ grupo))[columnas]
     }
     
     col_p_adj <- grep("adj", names(clasica), ignore.case = TRUE, value = TRUE)[1] # En la prueba de Tukey y en Dunn las columnas se llaman diferente. Por eso es necesario hacer un 'grep'.
@@ -442,7 +450,7 @@ analizar_arboles_shannon <- function(datos_base, muestras_vec, nombres, metodo_c
     clasica$grupo <- rownames(clasica)
     clasica <- clasica[, c("grupo", "separado")]
     
-    modelo_arbol <- rpart(valor ~ grupo, data = datos, method = "anova")
+    modelo_arbol <- rpart::rpart(valor ~ grupo, data = datos, method = "anova")
     arbol <- data.frame(nodo = modelo_arbol$where)
     arbol$grupo_real <- datos$grupo
     
