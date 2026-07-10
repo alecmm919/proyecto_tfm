@@ -2,6 +2,14 @@
 
 Todas las versiones de este proyecto quedan registradas en este archivo.
 
+## [2.0-sep]
+
+### Añadido
+- *Script* único con todo el *pipeline* del trabajo.
+
+### Eliminado
+- La carpeta con los *scripts* pasa al ```.gitignore```.
+
 ## [1.0]
 
 ### Añadido

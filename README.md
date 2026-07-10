@@ -7,11 +7,15 @@ Para mayor información sobre las librerías cargadas, consultar ```sessionInfo.
 
 # Estructura del proyecto
 
+## *Script* ```PIPELINE_COMPLETO.R```
+
+Contiene todo el trabajo en un solo *script.* Es equivalente a ejecutar el *script* número 99 en la carpeta ```scripts_por_partes```.
+
 ## Directorio de pruebas
 
 Contiene pruebas auxiliares realizadas a lo largo del proyecto y *no deben considerarse* como parte del mismo.
 
-## Directorio de *scripts*
+## Directorio de *scripts por partes*
 
 Todos los *scripts* comienzan con una breve descripción de su objetivo. Los *scripts* 01 - 09 tienen objetivos exploratorios. A partir del *script* 10, se realizan las pruebas con un mayor número de repeticiones para buscar patrones más fiables.
 
