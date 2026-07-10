@@ -20,6 +20,13 @@ library(grDevices)
 library(rpart.plot)
 library(caret)
 library(stringr)
+library(ks)
+library(FSA)
+library(nnet)
+library(lattice)
+library(MASS)
+library(RVAideMemoire)
+library(purrr)
 
 # Parte 0: Definición de funciones ----
 simular_normal_exacto <- function(x, n, mu = NULL, s = NULL){ # Esta función genera valores normales a partir de una muestra normal.
@@ -679,8 +686,6 @@ comprobaciones_01(simulados, "datos/simulados/01d_corazon_desbalanceados.csv", "
 
 n <- 40 # General para todos los grupos.
 
-library(tidyverse)
-
 datos_reales <- read.csv("datos/reales/01a_corazon_tidy.csv")
 estadisticos_real <- read.csv("datos/reales/estadisticos/01a_estadisticos.csv")
 
@@ -865,7 +870,1799 @@ simulados <- datos_reales %>% # Separamos por tipo.
 simulados$grupo <- factor(simulados$grupo)
 comprobaciones_02(simulados, datos_reales, "datos/simulados/02d_brca_desbalanceados.csv", "datos/simulados/estadisticos/02d_brca_desbalanceados.csv")
 
+n <- 40
 
+datos_reales <- read_csv("datos/reales/02a_brca_tidy.csv")
+estadisticos_real <- read_csv("datos/reales/estadisticos/02a_estadisticos.csv")
+
+
+ri_global <- IQR(datos_reales$valor)
+desviacion <- (datos_reales$valor - median(datos_reales$valor)) / ri_global  # Las desviaciones la normalizamos con respecto a la mediana y al RI.
+ri_medio <- mean(estadisticos_real$RI)
+mediana_glob <- median(datos_reales$valor)
+
+# Procedemos a simular. Simulamos el resto de grupos con la misma filosofía que el 'script' 2b.
+grupos_extra <- c("G5", "G6")
+medianas_extra <- c(median(datos_reales$valor), median(datos_reales[datos_reales$grupo == "R1753T", ]$valor) + median(datos_reales[datos_reales$grupo == "Q1785H", ]$valor)) # Ponemos como medianas la mediana de todos los datos (G5), y la suma de las medianas de dos grupos (G6).
+
+medianas_objetivo <- datos_reales %>%
+    group_by(grupo) %>%
+    summarise(med_tipo = median(valor), .groups = "drop") %>%
+    bind_rows(
+        tibble(
+            grupo = grupos_extra,
+            med_tipo = medianas_extra
+        )
+    )
+
+simulados <- medianas_objetivo %>%
+    group_by(grupo) %>%
+    reframe(
+        {
+            med_tipo <- first(med_tipo)
+            desv <- sample(desviacion, size = n, replace = TRUE)
+            desv <- desv - median(desv)
+            desv <- desv / IQR(desv)
+            valor <- med_tipo + desv * ri_global
+            tibble(valor = valor)
+        }
+    )
+
+# Comprobamos los supuestos.
+
+simulados$grupo <- factor(simulados$grupo)
+comprobaciones_02(simulados, datos_reales, "datos/simulados/02e_brca_6g_n40.csv", "datos/simulados/estadisticos/02e_brca_6g_n40.csv")
+
+## Caso 3 ----
+
+n <- 40
+
+datos_reales <- read_csv("datos/reales/02a_brca_tidy.csv")
+estadisticos_real <- read_csv("datos/reales/estadisticos/02a_estadisticos.csv")
+
+
+ri_global <- IQR(datos_reales$valor)
+desviacion <- (datos_reales$valor - median(datos_reales$valor)) / ri_global  # Las desviaciones la normalizamos con respecto a la mediana y al RI.
+ri_medio <- mean(estadisticos_real$RI)
+mediana_glob <- median(datos_reales$valor)
+
+# Procedemos a simular. Simulamos el resto de grupos con la misma filosofía que el 'script' 2b.
+grupos_extra <- c("G5", "G6")
+medianas_extra <- c(median(datos_reales$valor), median(datos_reales[datos_reales$grupo == "R1753T", ]$valor) + median(datos_reales[datos_reales$grupo == "Q1785H", ]$valor)) # Ponemos como medianas la mediana de todos los datos (G5), y la suma de las medianas de dos grupos (G6).
+
+medianas_objetivo <- datos_reales %>%
+    group_by(grupo) %>%
+    summarise(med_tipo = median(valor), .groups = "drop") %>%
+    bind_rows(
+        tibble(
+            grupo = grupos_extra,
+            med_tipo = medianas_extra
+        )
+    )
+
+simulados <- medianas_objetivo %>%
+    group_by(grupo) %>%
+    reframe(
+        {
+            med_tipo <- first(med_tipo)
+            desv <- sample(desviacion, size = n, replace = TRUE)
+            desv <- desv - median(desv)
+            desv <- desv / IQR(desv)
+            valor <- med_tipo + desv * ri_global
+            tibble(valor = valor)
+        }
+    )
+
+# Comprobamos los supuestos.
+
+simulados$grupo <- factor(simulados$grupo)
+comprobaciones_02(simulados, datos_reales, "datos/simulados/02e_brca_6g_n40.csv", "datos/simulados/estadisticos/02e_brca_6g_n40.csv")
+
+# Cargamos los datos y convertimos en factores.
+datos_reales <- read_csv("datos/reales/03a_estres_tidy.csv") %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+estadisticos_real <- read_csv("datos/reales/estadisticos/03a_estadisticos.csv")
+
+# Simulamos los grupos por sus distintos estadísticos.
+for (n in c(20, 30, 40)){
+    simulados <- datos_reales %>%
+        group_by(grupo) %>%
+        reframe(
+            valor = simular_normal_exacto(valor, n)
+        )
+    
+    # Pasamos a factores los simulados y comprobamos.
+    simulados$grupo <- factor(simulados$grupo)
+    comprobaciones_03(simulados, datos_reales, paste0("datos/simulados/03b_estres_", n, ".csv"), paste0("datos/simulados/estadisticos/03b_estres_", n, ".csv"))
+}
+
+n <- 20 # Número de datos.
+
+# Cargamos los datos y convertimos en factores.
+datos_reales <- read_csv("datos/reales/03a_estres_tidy.csv")
+
+estadisticos_real <- read_csv("datos/reales/estadisticos/03a_estadisticos.csv")
+
+datos_reales$grupo <- as.character(datos_reales$grupo)
+
+# Generamos dos grupos extra.
+filas <- nrow(datos_reales)
+for (i in 1:n){
+    datos_reales[i+filas, ] <- list("G5", 0)
+}
+
+filas <- nrow(datos_reales)
+for (i in 1:n){
+    datos_reales[i+filas, ] <- list("G6", 0)
+}
+
+# Simulamos los grupos por sus distintos estadísticos.
+simulados <- datos_reales %>%
+    group_by(grupo) %>%
+    reframe(
+        valor = simular_normal_exacto(valor, n)
+    )
+
+# Simulamos los grupos nuevos.
+media <- mean(datos_reales$valor, na.rm = TRUE)
+
+# Simulamos los nuevos grupos usando los estadísticos.
+simulados[simulados$grupo == "G5", ] <- datos_reales[datos_reales$grupo == "G5", ] %>%
+    reframe(
+        grupo = "G5",
+        valor = simular_normal_exacto(valor, n, mu = media, s = mean(c(as.numeric(estadisticos_real[1,3]), as.numeric(estadisticos_real[2,3]), as.numeric(estadisticos_real[3,3]), as.numeric(estadisticos_real[4,3])))) # Simulamos un grupo 'promedio' en sus dos estadísticos.
+    )
+
+simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6", ] %>%
+    reframe(
+        grupo = "G6",
+        valor = simular_normal_exacto(valor, n, mu = as.numeric(estadisticos_real[2,2]) + as.numeric(estadisticos_real[3,2]), s = mean(c(as.numeric(estadisticos_real[3,2]), as.numeric(estadisticos_real[3,3])))) # Simulamos la suma de dos grupos.
+    )
+
+# Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
+simulados$grupo <- factor(simulados$grupo)
+comprobaciones_03(simulados, datos_reales, "datos/simulados/03c_estres_6g_n20.csv", "datos/simulados/estadisticos/03c_estres_6g_n20.csv")
+
+# Generamos grupos desbalanceados
+n <- c(25, 30, 15, 20)
+
+# Cargamos los datos y convertimos en factores.
+datos_reales <- read_csv("datos/reales/03a_estres_tidy.csv") %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+estadisticos_real <- read_csv("datos/reales/estadisticos/03a_estadisticos.csv")
+
+# Simulamos los grupos por sus distintos estadísticos.
+simulados <- datos_reales %>%
+    group_by(grupo) %>%
+    reframe(
+        valor = simular_normal_exacto(valor, n[first(grupo)])
+    )
+
+# Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
+simulados$grupo <- factor(simulados$grupo)
+comprobaciones_03(simulados, datos_reales, "datos/simulados/03d_estres_desbalanceados.csv", "datos/simulados/estadisticos/03d_estres_desbalanceados.csv")
+
+n <- 40 # Número de datos general.
+
+# Cargamos los datos y convertimos en factores.
+datos_reales <- read_csv("datos/reales/03a_estres_tidy.csv")
+
+estadisticos_real <- read_csv("datos/reales/estadisticos/03a_estadisticos.csv")
+
+datos_reales$grupo <- as.character(datos_reales$grupo)
+
+# Generamos dos grupos extra.
+filas <- nrow(datos_reales)
+for (i in 1:n){
+    datos_reales[i+filas, ] <- list("G5", 0)
+}
+
+filas <- nrow(datos_reales)
+for (i in 1:n){
+    datos_reales[i+filas, ] <- list("G6", 0)
+}
+
+# Simulamos los grupos por sus distintos estadísticos.
+simulados <- datos_reales %>%
+    group_by(grupo) %>%
+    reframe(
+        valor = simular_normal_exacto(valor, n)
+    )
+
+# Simulamos los grupos nuevos.
+media <- mean(datos_reales$valor, na.rm = TRUE)
+
+# Simulamos los nuevos grupos usando los estadísticos.
+simulados[simulados$grupo == "G5", ] <- datos_reales[datos_reales$grupo == "G5", ] %>%
+    reframe(
+        grupo = "G5",
+        valor = simular_normal_exacto(valor, n, mu = media, s = mean(c(as.numeric(estadisticos_real[1,3]), as.numeric(estadisticos_real[2,3]), as.numeric(estadisticos_real[3,3]), as.numeric(estadisticos_real[4,3])))) # Simulamos un grupo 'promedio' en sus dos estadísticos.
+    )
+
+simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6", ] %>%
+    reframe(
+        grupo = "G6",
+        valor = simular_normal_exacto(valor, n, mu = as.numeric(estadisticos_real[2,2]) + as.numeric(estadisticos_real[3,2]), s = mean(c(as.numeric(estadisticos_real[3,2]), as.numeric(estadisticos_real[3,3])))) # Simulamos la suma de dos grupos.
+    )
+
+# Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
+simulados$grupo <- factor(simulados$grupo)
+comprobaciones_03(simulados, datos_reales, "datos/simulados/03e_estres_6g_n40.csv", "datos/simulados/estadisticos/03e_estres_6g_n40.csv")
+
+## Caso 4 ----
+
+
+# Se toman los datos desde los 5 csv publicados en el 'paper'. Y tomamos únicamente las variables que nos interesan.
+datos_0 <- read.csv("datos/reales/04_f0.csv", sep = ";")
+datos_1 <- read.csv("datos/reales/04_f1.csv", sep = ";")
+datos_2 <- read.csv("datos/reales/04_f2.csv", sep = ";")
+datos_3 <- read.csv("datos/reales/04_f3.csv", sep = ";")
+datos_4 <- read.csv("datos/reales/04_f4.csv", sep = ";")
+
+datos_0 <- datos_0[c("name", "GPR", "age", "sex", "grade")]
+datos_1 <- datos_1[c("name", "GPR", "age", "sex", "grade")]
+datos_2 <- datos_2[c("name", "GPR", "age", "sex", "grade")]
+datos_3 <- datos_3[c("name", "GPR", "age", "sex", "grade")]
+datos_4 <- datos_4[c("name", "GPR", "age", "sex", "grade")]
+
+datos_0 <- datos_0[datos_0$age %in% 40:50 & datos_0$sex == "male", ]
+datos_0 <- datos_0[,c(1,2)]
+datos_1 <- datos_1[datos_1$age %in% 40:50 & datos_1$sex == "male", ]
+datos_1 <- datos_1[,c(1,2)]
+datos_2 <- datos_2[datos_2$age %in% 40:50 & datos_2$sex == "male", ]
+datos_2 <- datos_2[,c(1,2)]
+datos_3 <- datos_3[datos_3$age %in% 40:50 & datos_3$sex == "male", ]
+datos_3 <- datos_3[,c(1,2)]
+datos_4 <- datos_4[datos_4$age %in% 40:50 & datos_4$sex == "male", ]
+datos_4 <- datos_4[,c(1,2)]
+
+# Para unir las 5 tablas en una sola, marcamos la grupo.
+datos_0 <- datos_0 %>%
+    mutate(grupo = "GPR_0") %>%
+    dplyr::select(grupo, valor = GPR) # En este caso, hay que poner dplyr:: porque la función select estaba dando problemas.
+
+datos_1 <- datos_1 %>%
+    mutate(grupo = "GPR_1") %>%
+    dplyr::select(grupo, valor = GPR)
+
+datos_2 <- datos_2 %>%
+    mutate(grupo = "GPR_2") %>%
+    dplyr::select(grupo, valor = GPR)
+
+datos_3 <- datos_3 %>%
+    mutate(grupo = "GPR_3") %>%
+    dplyr::select(grupo, valor = GPR)
+
+datos_4 <- datos_4 %>%
+    mutate(grupo = "GPR_4") %>%
+    dplyr::select(grupo, valor = GPR)
+
+datos <- bind_rows(datos_0, datos_1, datos_2, datos_3, datos_4)
+
+datos <- datos[datos$grupo != "GPR_1",]
+
+# Ahora, convertimos los datos a los tipos que nos interesan.
+datos$grupo <- factor(datos$grupo, ordered = TRUE) # En este caso, los factores deben ir ordenados.
+datos$valor <- as.numeric(gsub(",",".", datos$valor))
+
+write_csv(datos, "datos/reales/04a_hepatitis_tidy.csv")
+
+# Comprobamos la parametricidad. Vemos que los datos no son normales ni homocedásticos. En este caso, tenemos 4 'ties' con valor 0, por lo que Kolmogorov no puede usarse. Tampoco podemos usar Shapiro porque hay 70 individuos por grupo. Por ello, se usará Cramer-Von-Mises para este contraste.
+comprobar_normalidad_shapiro(datos, "grupo", "valor")
+leveneTest(valor ~ grupo, data = datos) # Usamos Levene porque los datos no son normales.
+
+estadisticos_04 <- generar_estadisticos_np(datos, "grupo")
+write_csv(estadisticos_04, "datos/reales/estadisticos/04a_estadisticos.csv")
+
+# Cargamos los datos y convertimos en factores.
+datos_reales <- read_csv("datos/reales/04a_hepatitis_tidy.csv")
+estadisticos_real <- read_csv("datos/reales/estadisticos/04a_estadisticos.csv")
+
+estadisticos_real <- estadisticos_real %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+datos_reales <- datos_reales %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+# Creamos un 'tibble' para meter los datos. Usaremos una función ks, se trata de una función de densidad calculada en base a los datos originales y replicada en la simulación.
+for (n in c(20, 30, 40)){
+    simulados <- datos_reales %>%
+        group_by(grupo) %>%
+        group_modify(~ {
+            x <- .x$valor
+            dens <- kde(x)
+            data.frame(
+                valor = rkde(dens, n = n) # Esta función calcula la distribución.
+            )
+        }) %>%
+        ungroup()
+    
+    simulados$grupo <- factor(simulados$grupo, levels = levels(datos_reales$grupo))
+    comprobaciones_04(simulados, datos_reales, paste0("datos/simulados/04b_hepatitis_", n, ".csv"), paste0("datos/simulados/estadisticos/04b_hepatitis_", n, ".csv"))
+}
+
+n <- 20
+
+# Cargamos los datos y convertimos en factores.
+datos_reales <- read_csv("datos/reales/04a_hepatitis_tidy.csv")
+estadisticos_real <- read_csv("datos/reales/estadisticos/04a_estadisticos.csv")
+
+estadisticos_real <- estadisticos_real %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+datos_reales <- datos_reales %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+# En este caso, al usar la función 'ks', tenemos que partir de una distribución original. Por ello, primero generamos los datos simualdos.
+simulados <- datos_reales %>%
+    group_by(grupo) %>%
+    group_modify(~ {
+        x <- .x$valor
+        dens <- kde(x)
+        data.frame(
+            valor = rkde(dens, n = n) # Esta función calcula la distribución.
+        )
+    }) %>%
+    ungroup()
+
+# Simulamos el grupo G5 con las distribuciones de GPR_2 y GPR_3. Simulamos G6 con las dos restantes.
+x_gpr2 <- simulados %>%
+    filter(grupo == "GPR_2") %>%
+    pull(valor)
+
+x_gpr3 <- simulados %>%
+    filter(grupo == "GPR_3") %>%
+    pull(valor)
+
+dens_gpr2 <- kde(x_gpr2) # Sacamos las densidades.
+dens_gpr3 <- kde(x_gpr3)
+
+sim_G5 <- tibble(
+    valor = (rkde(dens_gpr2, n = n) + rkde(dens_gpr3, n = n)) / 2,
+    grupo = "G5"
+)
+
+# Generamos G6 como la suma de las distribuciones de GPR_0 y GPR_4.
+x_gpr0 <- simulados %>%
+    filter(grupo == "GPR_0") %>%
+    pull(valor)
+
+x_gpr4 <- simulados %>%
+    filter(grupo == "GPR_4") %>%
+    pull(valor)
+
+dens_gpr0 <- kde(x_gpr0)
+dens_gpr4 <- kde(x_gpr4)
+
+sim_G6 <- tibble(
+    valor = rkde(dens_gpr0, n = n) + rkde(dens_gpr4, n = n),
+    grupo = "G6"
+)
+
+# Añadimos G5 y G6 a los simulados.
+simulados <- bind_rows(simulados, sim_G5, sim_G6)
+
+# Reajustamos los niveles del factor.
+simulados$grupo <- factor(simulados$grupo)
+
+# Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
+comprobaciones_04(simulados, datos_reales, "datos/simulados/04c_hepatitis_6g_n20.csv", "datos/simulados/estadisticos/04c_hepatitis_6g_n20.csv")
+
+# Generamos números de datos pseudoaleatorios.
+var <- c(20, 25, 30, 15)
+names(var) <- c("GPR_0", "GPR_2", "GPR_3", "GPR_4")
+n <- c(var["GPR_0"], var["GPR_2"], var["GPR_3"], var["GPR_4"])
+
+# Cargamos los datos y convertimos en factores.
+datos_reales <- read_csv("datos/reales/04a_hepatitis_tidy.csv")
+estadisticos_real <- read_csv("datos/reales/estadisticos/04a_estadisticos.csv")
+
+estadisticos_real <- estadisticos_real %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+datos_reales <- datos_reales %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+# Creamos un 'tibble' para meter los datos. Usaremos una función ks, se trata de una función de densidad calculada en base a los datos originales y replicada en la simulación.
+simulados <- datos_reales %>%
+    group_by(grupo) %>%
+    group_modify(~ {
+        x <- .x$valor
+        g <- .y$grupo
+        dens <- kde(x)
+        data.frame(
+            valor = rkde(dens, n = n[as.character(g)])
+        )
+    }) %>%
+    ungroup()
+
+simulados$grupo <- factor(simulados$grupo, levels = levels(datos_reales$grupo))
+
+# Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
+comprobaciones_04(simulados, datos_reales, "datos/simulados/04d_hepatitis_desbalanceados.csv", "datos/simulados/estadisticos/04d_hepatitis_desbalanceados.csv")
+
+# Cargamos los datos y convertimos en factores.
+datos_reales <- read_csv("datos/reales/04a_hepatitis_tidy.csv")
+estadisticos_real <- read_csv("datos/reales/estadisticos/04a_estadisticos.csv")
+
+estadisticos_real <- estadisticos_real %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+datos_reales <- datos_reales %>%
+    mutate(
+        grupo = factor(grupo)
+    )
+
+# En este caso, al usar la función 'ks', tenemos que partir de una distribución original. Por ello, primero generamos los datos simualdos.
+simulados <- datos_reales %>%
+    group_by(grupo) %>%
+    group_modify(~ {
+        x <- .x$valor
+        dens <- kde(x)
+        data.frame(
+            valor = rkde(dens, n = n) # Esta función calcula la distribución.
+        )
+    }) %>%
+    ungroup()
+
+# Simulamos el grupo G5 con la suma de las dos distribuciones de mayor media. Si sumamos las 4, se obtiene una distribución normal, por lo que cogemos GPR_3 y GPR_4, que son las no usadas en G6. De esta forma, obtenemos distribuciones no normales.
+x_gpr0 <- simulados %>%
+    filter(grupo == "GPR_0") %>%
+    pull(valor)
+
+x_gpr2 <- simulados %>%
+    filter(grupo == "GPR_2") %>%
+    pull(valor)
+
+x_gpr3 <- simulados %>%
+    filter(grupo == "GPR_3") %>%
+    pull(valor)
+
+x_gpr4 <- simulados %>%
+    filter(grupo == "GPR_4") %>%
+    pull(valor)
+
+# Sacamos las densidades.
+dens_gpr0 <- kde(x_gpr0)
+dens_gpr2 <- kde(x_gpr2)
+dens_gpr3 <- kde(x_gpr3)
+dens_gpr4 <- kde(x_gpr4)
+
+sim_G5 <- tibble(
+    valor = (rkde(dens_gpr3, n = n) + rkde(dens_gpr4, n = n)) / 2,
+    grupo = "G5"
+)
+
+# Generamos G6 como la suma de las distribuciones de GPR_0 y GPR_2 (las de menor media).
+sim_G6 <- tibble(
+    valor = rkde(dens_gpr0, n = n) + rkde(dens_gpr2, n = n),
+    grupo = "G6"
+)
+
+# Añadimos G5 y G6 a los simulados.
+simulados <- bind_rows(simulados, sim_G5, sim_G6)
+
+# Reajustamos los niveles del factor.
+simulados$grupo <- factor(simulados$grupo)
+
+# Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
+comprobaciones_04(simulados, datos_reales, "datos/simulados/04e_hepatitis_6g_n40.csv", "datos/simulados/estadisticos/04e_hepatitis_6g_n40.csv")
+
+# Informes y comparaciones ----
+
+# Cargamos los datos reales.
+real_1 <- read.csv("datos/reales/estadisticos/01a_estadisticos.csv")
+real_2 <- read.csv("datos/reales/02a_brca_tidy.csv")
+real_3 <- read.csv("datos/reales/estadisticos/03a_estadisticos.csv")
+real_4 <- read.csv("datos/reales/04a_hepatitis_tidy.csv")
+
+real_1$grupo <- as.character(real_1$grupo)
+real_2$grupo <- as.character(real_2$grupo)
+real_3$grupo <- as.character(real_3$grupo)
+real_4$grupo <- as.character(real_4$grupo)
+
+# Tomamos todos los archivos necesarios.
+archivos_sim_1 <- list.files("datos/simulados/estadisticos", pattern = "^01.*\\.csv$", full.names = TRUE)
+archivos_sim_2 <- list.files("datos/simulados", pattern = "^02.*\\.csv$", full.names = TRUE)
+archivos_sim_3 <- list.files("datos/simulados/estadisticos", pattern = "^03.*\\.csv$", full.names = TRUE)
+archivos_sim_4 <- list.files("datos/simulados", pattern = "^04.*\\.csv$", full.names = TRUE)
+
+# Para los casos normales, podemos buscar la comparación mediante el cálculo de los errores estándar de la media. Hay que hacer esto con todos los simulados de la ruta especificada.
+comparacion_1_normal_homo <- lapply(archivos_sim_1, function(archivo) { # Definimos un bucle.
+    sim_1 <- read.csv(archivo) # Los simulados a usar.
+    sim_1$grupo <- as.character(sim_1$grupo)
+    comparar_estadisticos_reales_simulados(real_1, sim_1, nrow(real_1), nrow(sim_1), "grupo") # Comparamos.
+})
+names(comparacion_1_normal_homo) <- basename(archivos_sim_1)
+
+# Igual para el caso 03.
+comparacion_3_normal_hetero <- lapply(archivos_sim_3, function(archivo) {
+    sim_3 <- read.csv(archivo)
+    sim_3$grupo <- as.character(sim_3$grupo)
+    comparar_estadisticos_reales_simulados(real_3, sim_3, nrow(real_3), nrow(sim_3), "grupo")
+})
+
+names(comparacion_3_normal_hetero) <- basename(archivos_sim_3)
+
+# En los casos no-normales, realizaremos una prueba de Mann-Whitney para comprobar la igualdad de distribuciones. Lo haremmos para cada factor por separado.
+niveles <- c("Q1785H", "R1753T", "E1794D", "V1804D")
+
+comparacion_2_no_normal_homo <- lapply(archivos_sim_2, function(archivo) {
+    sim_2 <- read.csv(archivo)
+    sim_2$grupo <- as.character(sim_2$grupo)
+    
+    do.call(
+        rbind,
+        lapply(niveles, function(n) {
+            test <- wilcox.test(
+                real_2$valor[real_2[["grupo"]] == n],
+                sim_2$valor[sim_2[["grupo"]] == n],
+                exact = FALSE
+            )
+            data.frame(
+                nivel = n,
+                W = unname(test$statistic),
+                p_value = test$p.value
+            )
+        })
+    )
+})
+names(comparacion_2_no_normal_homo) <- basename(archivos_sim_2)
+
+# Para el caso 04.
+niveles <- c("GPR_0", "GPR_2", "GPR_3", "GPR_4")
+
+comparacion_4_no_normal_hetero <- lapply(archivos_sim_4, function(archivo) {
+    sim_4 <- read.csv(archivo)
+    sim_4$grupo <- as.character(sim_4$grupo)
+    
+    do.call(
+        rbind,
+        lapply(niveles, function(n) {
+            test <- wilcox.test(
+                real_4$valor[real_4[["grupo"]] == n],
+                sim_4$valor[sim_4[["grupo"]] == n],
+                exact = FALSE
+            )
+            data.frame(
+                nivel = n,
+                W = unname(test$statistic),
+                p_value = test$p.value
+            )
+        })
+    )
+})
+names(comparacion_4_no_normal_hetero) <- basename(archivos_sim_4)
+
+# Mostramos el informe de estadísticos. Quitamos las columnas que no interesan, resultado de la fusión de las tablas.
+informe_1_normal_homo <- bind_rows(lapply(comparacion_1_normal_homo, function(x) x[-5]), .id = "archivo")
+informe_2_no_normal_homo <- bind_rows(comparacion_2_no_normal_homo, .id = "archivo")
+informe_3_normal_hetero <- bind_rows(lapply(comparacion_3_normal_hetero, function(x) x[-5]), .id = "archivo")
+informe_4_no_normal_hetero <- bind_rows(comparacion_4_no_normal_hetero, .id = "archivo")
+
+# Ajustamos los p-valores, puesto que se han realizado muchas comparaciones.
+informe_1_normal_homo$p_media_ajustado <- p.adjust(informe_1_normal_homo$p_valor_media, method = "holm")
+informe_1_normal_homo$p_var_ajustado <- p.adjust(informe_1_normal_homo$p_valor_var, method = "holm")
+informe_2_no_normal_homo$p_ajustado <- p.adjust(informe_2_no_normal_homo$p_value, method = "holm")
+informe_3_normal_hetero$p_media_ajustado <- p.adjust(informe_3_normal_hetero$p_valor_media, method = "holm")
+informe_3_normal_hetero$p_var_ajustado <- p.adjust(informe_3_normal_hetero$p_valor_var, method = "holm")
+informe_4_no_normal_hetero$p_ajustado <- p.adjust(informe_4_no_normal_hetero$p_value, method = "holm")
+
+# Se guardan los informes.
+write.csv(informe_1_normal_homo, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso1.csv")
+write.csv(informe_2_no_normal_homo, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso2.csv")
+write.csv(informe_3_normal_hetero, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso3.csv")
+write.csv(informe_4_no_normal_hetero, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso4.csv")
+
+# Podemos ver que se conservan los estadísticos y distribuciones.
+
+# Importamos todos los datos simulados.
+lista_1 <- list.files(path = "datos/simulados", pattern = "^01", full.names = TRUE)
+lista_2 <- list.files(path = "datos/simulados", pattern = "^02", full.names = TRUE)
+lista_3 <- list.files(path = "datos/simulados", pattern = "^03", full.names = TRUE)
+lista_4 <- list.files(path = "datos/simulados", pattern = "^04", full.names = TRUE)
+
+# Planteamos un bucle para todo.
+for (i in 1:length(lista_1)){
+    # Situación 1.
+    # ANOVA.
+    caso_1 <- read.csv(lista_1[i])
+    summary(m1 <- aov(valor ~ grupo, data = caso_1))
+    TukeyHSD(m1)
+    
+    # Situación 2: Kruskal - Wallis + Dunn.
+    caso_2 <- read.csv(lista_2[i])
+    caso_2$grupo <- factor(caso_2$grupo)
+    
+    kruskal_test(caso_2, valor ~ grupo)
+    dunnTest(valor ~ grupo, data = caso_2)
+    
+    # Situación 3: ANOVA de Welch + Games-Howell.
+    caso_3 <- read.csv(lista_3[i])
+    oneway.test(valor ~ grupo, data = caso_3, var.equal = FALSE)
+    games_howell_test(caso_3, valor ~ grupo)
+    
+    # Situación 4: Kruskal-Wallis + Dunn.
+    caso_4 <- read.csv(lista_4[i])
+    caso_4$grupo <- factor(caso_4$grupo)
+    
+    kruskal_test(caso_4, valor ~ grupo)
+    dunnTest(valor ~ grupo, data = caso_4)
+    
+    # Boxplots.
+    # Sacamos el título. Es fundamental distinguir los casos de 6 grupos con 20 y 40 datos respectivamente.
+    tit <- sacar_titulo(lista_1[i])
+    
+    plot_contrastes(caso_1, paste("Contexto paramétrico (", tit, ")"), "tukey", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_01_", tit, ".png"))
+    
+    plot_contrastes(caso_2, paste("Contexto no normal homocedástico (", tit, ")"), "dunn", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_02_", tit, ".png"))
+    
+    plot_contrastes(caso_3, paste("Contexto normal heterocedástico (", tit, ")"), "games-howell", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_03_", tit, ".png"))
+    
+    plot_contrastes(caso_4, paste("Contexto no normal heterocedástico (", tit, ")"), "dunn", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_04_", tit, ".png"))
+}
+
+# Generación de árboles y comparación ----
+
+# Cargamos los datos simulados.
+lista_1 <- list.files(path = "datos/simulados", pattern = "^01", full.names = TRUE)
+lista_2 <- list.files(path = "datos/simulados", pattern = "^02", full.names = TRUE)
+lista_3 <- list.files(path = "datos/simulados", pattern = "^03", full.names = TRUE)
+lista_4 <- list.files(path = "datos/simulados", pattern = "^04", full.names = TRUE)
+
+# Generamos los árboles de decisión.
+for (i in 1:length(lista_1)){
+    # Cargamos.
+    caso_1 <- read.csv(lista_1[i])
+    caso_1$grupo <- as.factor(caso_1$grupo)
+    caso_1$valor <- as.numeric(caso_1$valor)
+    
+    caso_2 <- read.csv(lista_2[i])
+    caso_2$grupo <- as.factor(caso_2$grupo)
+    caso_2$valor <- as.numeric(caso_2$valor)
+    
+    caso_3 <- read.csv(lista_3[i])
+    caso_3$grupo <- as.factor(caso_3$grupo)
+    caso_3$valor <- as.numeric(caso_3$valor)
+    
+    caso_4 <- read.csv(lista_4[i])
+    caso_4$grupo <- as.factor(caso_4$grupo)
+    caso_4$valor <- as.numeric(caso_4$valor)
+    
+    # Sacamos el título y simulamos.
+    tit <- sacar_titulo(lista_1[i])
+    
+    generar_arbol(caso_1, paste0("resultados/resultados_exploratorios/arboles/07_arbol_01_", tit, ".png"), paste("Contexto paramétrico (", tit, ")"))
+    generar_arbol(caso_2, paste0("resultados/resultados_exploratorios/arboles/07_arbol_02_", tit, ".png"), paste("Contexto no normal, homocedástico (", tit, ")"))
+    generar_arbol(caso_3, paste0("resultados/resultados_exploratorios/arboles/07_arbol_03_", tit, ".png"), paste("Contexto normal, heterocedástico (", tit, ")"))
+    generar_arbol(caso_4, paste0("resultados/resultados_exploratorios/arboles/07_arbol_04_", tit, ".png"), paste("Contexto no normal, heterocedástico (", tit, ")"))
+    
+    # Por otro lado, generamos las matrices de confusión.
+    matriz_confusion(caso_1, paste0("resultados/resultados_exploratorios/arboles/07_matriz_01_", tit, ".png"))
+    matriz_confusion(caso_2, paste0("resultados/resultados_exploratorios/arboles/07_matriz_02_", tit, ".png"))
+    matriz_confusion(caso_3, paste0("resultados/resultados_exploratorios/arboles/07_matriz_03_", tit, ".png"))
+    matriz_confusion(caso_4, paste0("resultados/resultados_exploratorios/arboles/07_matriz_04_", tit, ".png"))
+}
+
+# Cargamos los archivos con un bucle, cogiendo solo los .csv. Calculamos los estadísticos d de Cohen. Sacamos las columnas que interesan.
+archivos <- list.files(path = "datos/simulados", pattern = "\\.csv$", full.names = TRUE)
+
+for (i in archivos) { # Bucle para cada contexto. Generaremos una tabla por grupo de datos.
+    
+    n <- sacar_titulo(i)
+    
+    datos <- read.csv(i)
+    datos$grupo <- as.factor(datos$grupo)
+    
+    if (substr(i, 18, 18) == "1") {
+        # Separación clásica.
+        clasica <- as.data.frame(TukeyHSD(aov(valor ~ grupo, data = datos))$grupo)
+        # Identificamos los grupos separados.
+        clasica$separado <- ifelse(clasica$`p adj` < 0.05, TRUE, FALSE)
+        clasica$grupo <- rownames(clasica)
+        clasica <- clasica[, c("grupo", "separado")]
+        
+        # Aplicamos la comparación y guardamos.
+        comparar_clasica_arbol_tamano(datos, clasica, paste0("resultados/resultados_exploratorios/tablas_comparativas/08_comparacion_cla_arb_0", substr(i, 18, 18), "_", n, ".csv"), homocedastico = TRUE)
+    }
+    
+    else if (substr(i, 18, 18) == "2" | substr(i, 18, 18) == "4") { # Mismo proceso, pero adaptado a la prueba de Dunn, para los casos 2 y 4.
+        # Separación clásica.
+        clasica <- as.data.frame(dunn_test(datos, valor ~ grupo))[c(2, 3, 8)]
+        
+        # Pegamos los nombres de los grupos.
+        clasica$grupo <- paste0(clasica$group1, "-", clasica$group2)
+        rownames(clasica) <- clasica$grupo # Para que aparezcan en el .csv.
+        clasica$separado <- ifelse(clasica$p.adj < 0.05, TRUE, FALSE)
+        clasica <- clasica[,c("grupo", "separado")]
+        
+        # Aplicamos la comparación y guardamos.
+        comparar_clasica_arbol_tamano(datos, clasica, paste0("resultados/resultados_exploratorios/tablas_comparativas/08_comparacion_cla_arb_0", substr(i, 18, 18), "_", n, ".csv"), homocedastico = FALSE)
+    }
+    
+    else { # Para el caso 3.
+        
+        clasica <- as.data.frame(games_howell_test(datos, valor ~ grupo))[c(2, 3, 7)]
+        
+        # Pegamos los nombres de los grupos.
+        clasica$grupo <- paste0(clasica$group1, "-", clasica$group2)
+        rownames(clasica) <- clasica$grupo
+        clasica$separado <- ifelse(clasica$p.adj < 0.05, TRUE, FALSE)
+        clasica <- clasica[,c("grupo", "separado")]
+        
+        # Aplicamos la comparación y guardamos.
+        comparar_clasica_arbol_tamano(datos, clasica, paste0("resultados/resultados_exploratorios/tablas_comparativas/08_comparacion_cla_arb_0", substr(i, 18, 18), "_", n, ".csv"), homocedastico = TRUE)
+    }
+}
+
+# Cargamos los datos.
+datos <- list.files(path = "resultados/resultados_exploratorios/tablas_comparativas", pattern = "\\.csv$", full.names = TRUE)
+
+# Ahora, calculamos los aciertos en función del tipo de datos.
+for (i in 1:6){
+    # Título. Importante diferenciar los casos con 6 grupos y con 20 y 40 datos.
+    tit <- sacar_titulo(datos[i])
+    
+    calcular_aciertos(datos[c(i, 6+i, 12+i, 18+i)], paste0("resultados/resultados_exploratorios/analisis_aciertos/09_aciertos_", tit, "_.csv"))
+}
+
+# Análisis 1: Generamos un gráfico de barras de aciertos.
+datos_20 <- read.csv("resultados/resultados_exploratorios/analisis_aciertos/09_aciertos_4g_20n_.csv")
+datos_30 <- read.csv("resultados/resultados_exploratorios/analisis_aciertos/09_aciertos_4g_30n_.csv")
+datos_40 <- read.csv("resultados/resultados_exploratorios/analisis_aciertos/09_aciertos_4g_40n_.csv")
+
+# Sacamos el n_grupo.
+datos_20$X <- NULL
+datos_20$n_grupo <- 20
+datos_30$X <- NULL
+datos_30$n_grupo <- 30
+datos_40$X <- NULL
+datos_40$n_grupo <- 40
+
+datos <- bind_rows(datos_20, datos_30, datos_40)
+
+datos$grupo <- as.factor(datos$grupo)
+datos$n_grupo <- as.factor(datos$n_grupo)
+
+p <- ggplot(datos, aes(x = grupo, y = aciertos, fill = n_grupo)) +
+    geom_col(width = 0.75, position = "dodge") +
+    labs(
+        title = "Aciertos por grupo y n",
+        x = "",
+        y = "Número de aciertos",
+    ) +
+    theme_minimal()
+
+print(p)
+
+ggsave(filename = "resultados/resultados_exploratorios/analisis_aciertos/09_cambio_n.png", plot = p, width = 10, height = 6, dpi = 300)
+
+# Análisis 2: Miramos si el cambio en k tiene algún impacto. Limpiamos los datos.
+datos_6g_20n <- read.csv("resultados/resultados_exploratorios/analisis_aciertos/09_aciertos_6g_20n_.csv")
+datos_6g_40n <- read.csv("resultados/resultados_exploratorios/analisis_aciertos/09_aciertos_6g_40n_.csv")
+
+datos <- bind_rows(datos_20, datos_40, datos_6g_20n, datos_6g_40n)
+
+datos$X <- NULL
+
+datos <- datos %>%
+    mutate(
+        n_grupo = factor(rep(c(20, 40), each = 4, times = 2)),
+        k = factor(rep(c(4, 6), each = 8)),
+        aciertos = aciertos / (ifelse(k == 6, 15, 6)) # Proporción de aciertos (no aciertos absolutos.)
+    )
+
+datos$grupo <- as.factor(datos$grupo)
+datos$k <- as.factor(datos$k)
+
+p <- ggplot(datos, aes(x = grupo, y = aciertos, fill = k)) +
+    geom_col(width = 0.75, position = "dodge") +
+    labs(
+        title = "Aciertos por grupo y k",
+        x = "",
+        y = "Proporción de aciertos",
+    ) +
+    theme_minimal()
+
+print(p)
+
+ggsave(filename = "resultados/resultados_exploratorios/analisis_aciertos/09_cambio_k.png", plot = p, width = 10, height = 6, dpi = 300)
+
+# Análisis 3: Queremos comprobar si el tamaño del efecto afecta a la probabilidad de acertar.
+
+# Unimos todo en un solo data.frame.
+datos <- list.files(path = "resultados/resultados_exploratorios/tablas_comparativas", pattern = "\\.csv$", full.names = TRUE)
+
+tabla <- data.frame()
+
+for (i in datos) {
+    i <- read.csv(i)
+    tabla <- bind_rows(tabla, i)
+}
+
+# Limpiamos la tabla.
+tabla_limpia <- tabla %>%
+    mutate(
+        grupo = factor(rep(c("1", "2", "3", "4"), each = 54)),
+        acierto = ifelse(separado_clasica == separado_arbol, 1, 0),
+        magnitude = magnitude
+    )
+
+tabla_limpia <- tabla_limpia[c("grupo", "acierto", "magnitude")]
+
+# Separamos por grupo.
+tabla_1 <- table(tabla_limpia$magnitude[tabla_limpia$grupo == 1], tabla_limpia$acierto[tabla_limpia$grupo == 1])
+tabla_2 <- table(tabla_limpia$magnitude[tabla_limpia$grupo == 2], tabla_limpia$acierto[tabla_limpia$grupo == 2])
+tabla_3 <- table(tabla_limpia$magnitude[tabla_limpia$grupo == 3], tabla_limpia$acierto[tabla_limpia$grupo == 3])
+tabla_4 <- table(tabla_limpia$magnitude[tabla_limpia$grupo == 4], tabla_limpia$acierto[tabla_limpia$grupo == 4])
+
+tablas <- list(tabla_1, tabla_2, tabla_3, tabla_4)
+niveles <- c("negligible", "small", "moderate", "large")
+scores <- 1:4
+
+# Sacamos el índice rho de Spearman.
+resultados <- lapply(tablas, function(tabla) {
+    tabla <- tabla[niveles, ]
+    prop_acierto <- prop.table(tabla, margin = 1)[, "1"]
+    
+    validos <- !is.na(prop_acierto)
+    
+    cor.test(scores[validos], prop_acierto[validos], method = "spearman", exact = FALSE)
+})
+
+resultados
+
+# Análisis Shannon ----
+
+# Para contar con más margen, partimos de los datos de la etapa 3 con n = 40.
+caso_1 <- read.csv("datos/simulados/01b_corazon_40.csv")
+caso_2 <- read.csv("datos/simulados/02b_brca_40.csv")
+caso_3 <- read.csv("datos/simulados/03b_estres_40.csv")
+caso_4 <- read.csv("datos/simulados/04b_hepatitis_40.csv")
+
+# Igualamos los grupos para evitar errores.
+caso_1$gravedad <- NULL
+caso_1 <- caso_1 %>%
+    mutate(
+        grupo = ifelse(grupo == "B", "1", ifelse(grupo == "C", "2", ifelse(grupo == "I", "3", "4")))
+    )
+
+caso_2$X <- NULL
+caso_2 <- caso_2 %>%
+    mutate(
+        grupo = ifelse(grupo == "E1794D", "1", ifelse(grupo == "Q1785H", "2", ifelse(grupo == "R1753T", "3", "4")))
+    )
+
+caso_3$X <- NULL
+
+caso_4$X <- NULL
+caso_4 <- caso_4 %>%
+    mutate(
+        grupo = ifelse(grupo == "GPR_0", "1", ifelse(grupo == "GPR_2", "2", ifelse(grupo == "GPR_3", "3", "4")))
+    )
+
+# Ahora, repetimos 500 veces el mismo experimento: tomar valores pseudoaleatorios y hacer la predicción.
+resultados <- data.frame(
+    H <- numeric(),
+    n_aciertos <- numeric(),
+    caso <- character()
+)
+
+
+for (i in 1:500){
+    vec <- c(sample(5:35, size = 16)) # Decidimos los 4 tamaños muestrales.
+    
+    # Caso 1.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_1,
+        vec[1:4],
+        c("B", "C", "I", "P"),
+        "tukey",
+        NULL
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "1",
+            H = calcular_shannon(vec[1:4]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 2.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_2,
+        vec[5:8],
+        c("E1794D", "Q1785H", "R1753T", "V1804D"),
+        "dunn",
+        c(2, 3, 8)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "2",
+            H = calcular_shannon(vec[5:8]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 3.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_3,
+        vec[9:12],
+        c("1", "2", "3", "4"),
+        "games",
+        c(2, 3, 7)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "3",
+            H = calcular_shannon(vec[9:12]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 4.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_4,
+        vec[13:16],
+        c("GPR_0", "GPR_2", "GPR_3", "GPR_4"),
+        "dunn",
+        c(2, 3, 8)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "4",
+            H = calcular_shannon(vec[13:16]),
+            n_aciertos = n_aciertos
+        )
+    )
+}
+
+write_csv(resultados, file = "resultados/resultados_finales/shannon/10a_entropia_shannon.csv")
+
+datos <- read_csv("resultados/resultados_finales/shannon/10a_entropia_shannon.csv")
+
+# Al tratarse de una variable de conteo, utilizaremos la regresión COM-Poisson porque la media es mucho mayor que la varianza:
+mean(datos[datos$caso == 1, ]$H)
+mean(datos[datos$caso == 2, ]$H)
+mean(datos[datos$caso == 3, ]$H)
+mean(datos[datos$caso == 4, ]$H)
+var(datos[datos$caso == 1, ]$H)
+var(datos[datos$caso == 2, ]$H)
+var(datos[datos$caso == 3, ]$H)
+var(datos[datos$caso == 4, ]$H)
+
+for (i in 1:4){
+    
+    datos_corte <- datos %>%
+        filter(
+            caso == i,
+            !is.na(n_aciertos),
+            !is.na(H),
+            n_aciertos >= 0,
+            n_aciertos <= 6
+        )
+    
+    hacer_regresion_binomial(
+        datos_regresion = datos_corte,
+        max_aciertos = 6,
+        titulo_grafico = paste0("Regresión CMP, caso ", i),
+        salida = paste0(
+            "resultados/resultados_finales/shannon/10b_regresion_binomial_0",
+            i,
+            ".png"
+        )
+    )
+}
+
+# Hacemos también una regresión global.
+datos_global <- datos %>%
+    filter(
+        !is.na(n_aciertos),
+        !is.na(H),
+        n_aciertos >= 0,
+        n_aciertos <= 6
+    )
+
+hacer_regresion_binomial(
+    datos_regresion = datos_global,
+    max_aciertos = 6,
+    titulo_grafico = "Regresión CMP global",
+    salida = "resultados/resultados_finales/shannon/10b_regresion_global.png",
+    color_caso = TRUE
+)
+
+# Estudiamos la correlación.
+for (i in 1:4){
+    print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
+}
+
+caso_1 <- read.csv("datos/simulados/01e_corazon_6g_n40.csv")
+caso_2 <- read.csv("datos/simulados/02e_brca_6g_n40.csv")
+caso_3 <- read.csv("datos/simulados/03e_estres_6g_n40.csv")
+caso_4 <- read.csv("datos/simulados/04e_hepatitis_6g_n40.csv")
+
+# Igualamos los grupos para evitar errores.
+caso_1$gravedad <- NULL
+caso_1 <- caso_1 %>%
+    mutate(
+        grupo = ifelse(grupo == "B", "1", ifelse(grupo == "C", "2", ifelse(grupo == "I", "3", ifelse(grupo == "P", "4", ifelse(grupo == "G5", "5", "6")))))
+    )
+
+caso_2$X <- NULL
+caso_2 <- caso_2 %>%
+    mutate(
+        grupo = ifelse(grupo == "E1794D", "1", ifelse(grupo == "Q1785H", "2", ifelse(grupo == "R1753T", "3", ifelse(grupo == "V1804D", "4", ifelse(grupo == "G5", "5", "6")))))
+    )
+
+caso_3$X <- NULL
+
+caso_3 <- caso_3 %>%
+    mutate(
+        grupo = ifelse(grupo == "G5", "5", ifelse(grupo == "G6", "6", grupo))
+    )
+
+caso_4$X <- NULL
+caso_4 <- caso_4 %>%
+    mutate(
+        grupo = ifelse(grupo == "GPR_0", "1", ifelse(grupo == "GPR_2", "2", ifelse(grupo == "GPR_3", "3", ifelse(grupo == "GPR_4", "4", ifelse(grupo == "G5", "5", "6")))))
+    )
+
+# Ahora, repetimos 500 veces el mismo experimento: tomar valores pseudoaleatorios y hacer la predicción.
+resultados <- data.frame(
+    H <- numeric(),
+    n_aciertos <- numeric(),
+    caso <- character()
+)
+
+
+for (i in 1:500){
+    vec <- c(sample(5:35, size = 24)) # Decidimos los 6 tamaños muestrales. Tomamos hasta 20 datos para evitar grandes desbalanceos.
+    
+    # Caso 1.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_1,
+        vec[1:6],
+        c("B", "C", "I", "P", "G5", "G6"),
+        "tukey",
+        NULL
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "1",
+            H = calcular_shannon(vec[1:6]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 2.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_2,
+        vec[7:12],
+        c("E1794D", "Q1785H", "R1753T", "V1804D", "G5", "G6"),
+        "dunn",
+        c(2, 3, 8)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "2",
+            H = calcular_shannon(vec[7:12]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 3.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_3,
+        vec[13:18],
+        c("1", "2", "3", "4", "G5", "G6"),
+        "games",
+        c(2, 3, 7)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "3",
+            H = calcular_shannon(vec[13:18]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 4.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_4,
+        vec[19:24],
+        c("GPR_0", "GPR_2", "GPR_3", "GPR_4", "G5", "G6"),
+        "dunn",
+        c(2, 3, 8)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "4",
+            H = calcular_shannon(vec[19:24]),
+            n_aciertos = n_aciertos
+        )
+    )
+}
+
+write_csv(resultados, file = "resultados/resultados_finales/shannon/11a_entropia_shannon_6g.csv")
+
+datos <- read_csv("resultados/resultados_finales/shannon/11a_entropia_shannon_6g.csv")
+
+for (i in 1:4){
+    
+    datos_corte <- datos %>%
+        filter(
+            caso == i,
+            !is.na(n_aciertos),
+            !is.na(H),
+            n_aciertos >= 0,
+            n_aciertos <= 15
+        )
+    
+    hacer_regresion_binomial(
+        datos_regresion = datos_corte,
+        max_aciertos = 15,
+        titulo_grafico = paste0("Regresión CMP, caso ", i),
+        salida = paste0(
+            "resultados/resultados_finales/shannon/11b_regresion_binomial_6grupos_0",
+            i,
+            ".png"
+        )
+    )
+}
+
+# Hacemos también una regresión global.
+datos_global <- datos %>%
+    filter(
+        !is.na(n_aciertos),
+        !is.na(H),
+        n_aciertos >= 0,
+        n_aciertos <= 15
+    )
+
+hacer_regresion_binomial(
+    datos_regresion = datos_global,
+    max_aciertos = 15,
+    titulo_grafico = "Regresión CMP global",
+    salida = "resultados/resultados_finales/shannon/11b_regresion_global_6grupos.png",
+    color_caso = TRUE
+)
+
+# Estudiamos la correlación.
+for (i in 1:4){
+    print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
+}
+
+caso_1 <- read.csv("datos/simulados/01e_corazon_6g_n40.csv")
+caso_2 <- read.csv("datos/simulados/02e_brca_6g_n40.csv")
+caso_3 <- read.csv("datos/simulados/03e_estres_6g_n40.csv")
+caso_4 <- read.csv("datos/simulados/04e_hepatitis_6g_n40.csv")
+
+# Igualamos los grupos para evitar errores.
+caso_1$gravedad <- NULL
+caso_1 <- caso_1 %>%
+    mutate(
+        grupo = ifelse(grupo == "B", "1", ifelse(grupo == "C", "2", ifelse(grupo == "I", "3", ifelse(grupo == "P", "4", "5"))))
+    )
+
+caso_2$X <- NULL
+caso_2 <- caso_2 %>%
+    mutate(
+        grupo = ifelse(grupo == "E1794D", "1", ifelse(grupo == "Q1785H", "2", ifelse(grupo == "R1753T", "3", ifelse(grupo == "V1804D", "4", "5"))))
+    )
+
+caso_3$X <- NULL
+
+caso_3 <- caso_3 %>%
+    mutate(
+        grupo = ifelse(grupo == "G5", "5", grupo)
+    )
+
+caso_4$X <- NULL
+caso_4 <- caso_4 %>%
+    mutate(
+        grupo = ifelse(grupo == "GPR_0", "1", ifelse(grupo == "GPR_2", "2", ifelse(grupo == "GPR_3", "3", ifelse(grupo == "GPR_4", "4", "5"))))
+    )
+
+# Ahora, repetimos 500 veces el mismo experimento: tomar valores pseudoaleatorios y hacer la predicción.
+resultados <- data.frame(
+    H <- numeric(),
+    n_aciertos <- numeric(),
+    caso <- character()
+)
+
+
+for (i in 1:500){
+    vec <- c(sample(5:35, size = 20)) # Decidimos los 6 tamaños muestrales. Tomamos hasta 20 datos para evitar grandes desbalanceos.
+    
+    # Caso 1.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_1,
+        vec[1:5],
+        c("B", "C", "I", "P", "G5"),
+        "tukey",
+        NULL
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "1",
+            H = calcular_shannon(vec[1:5]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 2.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_2,
+        vec[6:10],
+        c("E1794D", "Q1785H", "R1753T", "V1804D", "G5"),
+        "dunn",
+        c(2, 3, 8)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "2",
+            H = calcular_shannon(vec[6:10]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 3.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_3,
+        vec[11:15],
+        c("1", "2", "3", "4", "G5"),
+        "games",
+        c(2, 3, 7)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "3",
+            H = calcular_shannon(vec[11:15]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 4.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_4,
+        vec[16:20],
+        c("GPR_0", "GPR_2", "GPR_3", "GPR_4", "G5"),
+        "dunn",
+        c(2, 3, 8)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "4",
+            H = calcular_shannon(vec[16:20]),
+            n_aciertos = n_aciertos
+        )
+    )
+}
+
+write_csv(resultados, file = "resultados/resultados_finales/shannon/12a_entropia_shannon_5g.csv")
+
+datos <- read_csv("resultados/resultados_finales/shannon/12a_entropia_shannon_5g.csv")
+
+for (i in 1:4){
+    
+    datos_corte <- datos %>%
+        filter(
+            caso == i,
+            !is.na(n_aciertos),
+            !is.na(H),
+            n_aciertos >= 0,
+            n_aciertos <= 10
+        )
+    
+    hacer_regresion_binomial(
+        datos_regresion = datos_corte,
+        max_aciertos = 10,
+        titulo_grafico = paste0("Regresión CMP, caso ", i),
+        salida = paste0(
+            "resultados/resultados_finales/shannon/12b_regresion_binomial_5grupos_0",
+            i,
+            ".png"
+        )
+    )
+}
+
+# Hacemos también una regresión global.
+datos_global <- datos %>%
+    filter(
+        !is.na(n_aciertos),
+        !is.na(H),
+        n_aciertos >= 0,
+        n_aciertos <= 10
+    )
+
+hacer_regresion_binomial(
+    datos_regresion = datos_global,
+    max_aciertos = 10,
+    titulo_grafico = "Regresión CMP global",
+    salida = "resultados/resultados_finales/shannon/12b_regresion_global_5grupos.png",
+    color_caso = TRUE
+)
+
+# Estudiamos la correlación.
+for (i in 1:4){
+    print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
+}
+
+# Para contar con más margen, partimos de los datos de la etapa 3 con n = 40.
+caso_1 <- read.csv("datos/simulados/01b_corazon_40.csv")
+caso_2 <- read.csv("datos/simulados/02b_brca_40.csv")
+caso_3 <- read.csv("datos/simulados/03b_estres_40.csv")
+caso_4 <- read.csv("datos/simulados/04b_hepatitis_40.csv")
+
+# Igualamos los grupos para evitar errores.
+caso_1$gravedad <- NULL
+caso_1 <- caso_1 %>%
+    mutate(
+        grupo = ifelse(grupo == "B", "1", ifelse(grupo == "C", "2", ifelse(grupo == "I", "3", "4")))
+    )
+
+caso_1 <- subset(caso_1, grupo != "2")
+
+caso_2$X <- NULL
+caso_2 <- caso_2 %>%
+    mutate(
+        grupo = ifelse(grupo == "E1794D", "1", ifelse(grupo == "Q1785H", "2", ifelse(grupo == "R1753T", "3", "4")))
+    )
+
+caso_2 <- subset(caso_2, grupo != "2")
+
+caso_3$X <- NULL
+
+caso_3 <- subset(caso_3, grupo != "3")
+
+caso_4$X <- NULL
+caso_4 <- caso_4 %>%
+    mutate(
+        grupo = ifelse(grupo == "GPR_0", "1", ifelse(grupo == "GPR_2", "2", ifelse(grupo == "GPR_3", "3", "4")))
+    )
+
+caso_4 <- subset(caso_4, grupo != "2")
+
+# Ahora, repetimos 500 veces el mismo experimento: tomar valores pseudoaleatorios y hacer la predicción.
+resultados <- data.frame(
+    H <- numeric(),
+    n_aciertos <- numeric(),
+    caso <- character()
+)
+
+
+for (i in 1:500){
+    vec <- c(sample(5:35, size = 12)) # Decidimos los 4 tamaños muestrales.
+    
+    # Caso 1.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_1,
+        vec[1:3],
+        c("B", "I", "P"),
+        "tukey",
+        NULL
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "1",
+            H = calcular_shannon(vec[1:3]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 2.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_2,
+        vec[4:6],
+        c("E1794D", "R1753T", "V1804D"),
+        "dunn",
+        c(2, 3, 8)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "2",
+            H = calcular_shannon(vec[4:6]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 3.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_3,
+        vec[7:9],
+        c("1", "2", "4"),
+        "games",
+        c(2, 3, 7)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "3",
+            H = calcular_shannon(vec[7:9]),
+            n_aciertos = n_aciertos
+        )
+    )
+    
+    # Caso 4.
+    n_aciertos <- analizar_arboles_shannon(
+        caso_4,
+        vec[10:12],
+        c("GPR_0", "GPR_3", "GPR_4"),
+        "dunn",
+        c(2, 3, 8)
+    )
+    
+    # Analizamos.
+    resultados <- rbind(
+        resultados,
+        data.frame(
+            caso = "4",
+            H = calcular_shannon(vec[10:12]),
+            n_aciertos = n_aciertos
+        )
+    )
+}
+
+write_csv(resultados, file = "resultados/resultados_finales/shannon/13a_entropia_shannon_3g.csv")
+
+datos <- read_csv("resultados/resultados_finales/shannon/13a_entropia_shannon_3g.csv")
+
+for (i in 1:4){
+    
+    datos_corte <- datos %>%
+        filter(
+            caso == i,
+            !is.na(n_aciertos),
+            !is.na(H),
+            n_aciertos >= 0,
+            n_aciertos <= 3
+        )
+    
+    hacer_regresion_binomial(
+        datos_regresion = datos_corte,
+        max_aciertos = 3,
+        titulo_grafico = paste0("Regresión CMP, caso ", i),
+        salida = paste0(
+            "resultados/resultados_finales/shannon/13b_regresion_binomial_3grupos_0",
+            i,
+            ".png"
+        )
+    )
+}
+
+# Hacemos también una regresión global.
+datos_global <- datos %>%
+    filter(
+        !is.na(n_aciertos),
+        !is.na(H),
+        n_aciertos >= 0,
+        n_aciertos <= 3
+    )
+
+hacer_regresion_binomial(
+    datos_regresion = datos_global,
+    max_aciertos = 3,
+    titulo_grafico = "Regresión CMP global",
+    salida = "resultados/resultados_finales/shannon/13b_regresion_global_3grupos.png",
+    color_caso = TRUE
+)
+
+# Estudiamos la correlación.
+for (i in 1:4){
+    print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
+}
+
+# Análisis adicionales ----
+
+## Repetición del análisis ----
+
+# Cargamos los datos.
+archivos_1 <- list.files("datos/simulados", pattern = "^01[c-e]_corazon_6g_n[0-9][0-9].csv$", full.names = TRUE)
+datos_1 <- map_dfr(archivos_1, read_csv)
+
+archivos_2 <- list.files("datos/simulados", pattern = "^02[c-e]_brca_6g_n[0-9][0-9].csv$", full.names = TRUE)
+datos_2 <- map_dfr(archivos_2, read_csv)
+
+archivos_3 <- list.files("datos/simulados", pattern = "^03[c-e]_estres_6g_n[0-9][0-9].csv$", full.names = TRUE)
+datos_3 <- map_dfr(archivos_3, read_csv)
+
+archivos_4 <- list.files("datos/simulados", pattern = "^04[c-e]_hepatitis_6g_n[0-9][0-9].csv$", full.names = TRUE)
+datos_4 <- map_dfr(archivos_4, read_csv)
+
+# Limpiamos.
+datos_1$gravedad <- NULL
+datos_1$grupo <- factor(datos_1$grupo)
+datos_2$grupo <- factor(datos_2$grupo)
+datos_3$grupo <- factor(datos_3$grupo)
+datos_4$grupo <- factor(datos_4$grupo)
+
+for (i in 1:500){
+    contador <- 1 # Para adaptar el bucle.
+    # Sacamos las subdivisiones de datos.
+    for (n in c(20, 30, 40)){
+        for (caso in list(datos_1, datos_2, datos_3, datos_4)){
+            datos_corte <- caso %>%
+                group_by(grupo) %>%
+                slice_sample(n = n)
+            
+            # La función de comparación da error si se le pasa un tibble como argumento.
+            datos_corte <- as.data.frame(datos_corte)
+            
+            archivo <- paste0("resultados/resultados_finales/repeticiones/14_comparacion_cla_arb_0", contador, "_n", n, ".csv")
+            
+            if (contador == 1) {
+                
+                # Separación clásica.
+                clasica <- as.data.frame(TukeyHSD(aov(valor ~ grupo, data = datos_corte))$grupo)
+                
+                # Identificamos los grupos separados.
+                clasica$separado <- ifelse(clasica$`p adj` < 0.05, TRUE, FALSE)
+                clasica$grupo <- rownames(clasica)
+                clasica <- clasica[, c("grupo", "separado")]
+                
+                # Aplicamos la comparación y guardamos.
+                escribir_resultado(datos_corte, clasica, archivo, homocedastico = TRUE)
+                contador <- contador + 1
+            }
+            
+            else if (contador == 2 | contador == 4) {
+                
+                # Separación clásica.
+                clasica <- as.data.frame(dunn_test(datos_corte, valor ~ grupo))[c(2, 3, 8)]
+                
+                # Pegamos los nombres de los grupos.
+                clasica$grupo <- paste0(clasica$group1, "-", clasica$group2)
+                rownames(clasica) <- clasica$grupo
+                
+                clasica$separado <- ifelse(clasica$p.adj < 0.05, TRUE, FALSE)
+                clasica <- clasica[, c("grupo", "separado")]
+                
+                # Aplicamos la comparación y guardamos.
+                escribir_resultado(datos_corte, clasica, archivo, homocedastico = FALSE)
+                
+                if (contador == 4) {
+                    contador <- 1
+                }
+                else {
+                    contador <- contador + 1
+                }
+            }
+            
+            else { # Caso 3.
+                clasica <- as.data.frame(games_howell_test(datos_corte, valor ~ grupo))[c(2, 3, 7)]
+                
+                # Pegamos los nombres de los grupos.
+                clasica$grupo <- paste0(clasica$group1, "-", clasica$group2)
+                rownames(clasica) <- clasica$grupo
+                
+                clasica$separado <- ifelse(clasica$p.adj < 0.05, TRUE, FALSE)
+                clasica <- clasica[, c("grupo", "separado")]
+                
+                # Aplicamos la comparación y guardamos.
+                escribir_resultado(datos_corte, clasica, archivo, homocedastico = TRUE)
+                
+                contador <- contador + 1
+            }
+        }
+    }
+}
+
+# Ahora, calculamos los aciertos en función del tipo de datos.
+datos <- list.files(path = "resultados/resultados_finales/repeticiones/", pattern = "^14_comparacion", full.names = TRUE)
+
+# Ahora, calculamos los aciertos en función del tipo de datos.
+for (i in 1:3){ # Este bucle, por n = 20, n = 30 y n = 40.
+    for (k in 4:6){ # Este bucle itera por k.
+        calcular_aciertos(datos[c(i, 3+i, 6+i, 9+i)], paste0("resultados/resultados_finales/repeticiones/14_aciertos_n", (1+i)*10, "_g", k, ".csv"), n_grupo = k)
+    }
+}
+
+# Repetimos el mismo proceso que en 'script' 09.
+datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g4.csv")
+datos_20_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g5.csv")
+datos_20_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g6.csv")
+datos_30_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g4.csv")
+datos_30_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g5.csv")
+datos_30_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g6.csv")
+datos_40_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g4.csv")
+datos_40_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g5.csv")
+datos_40_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g6.csv")
+
+# Sacamos el n_grupo.
+datos_20_4$X <- NULL
+datos_20_4$n_grupo <- 20
+datos_30_4$X <- NULL
+datos_30_4$n_grupo <- 30
+datos_40_4$X <- NULL
+datos_40_4$n_grupo <- 40
+datos_20_5$X <- NULL
+datos_20_5$n_grupo <- 20
+datos_30_5$X <- NULL
+datos_30_5$n_grupo <- 30
+datos_40_5$X <- NULL
+datos_40_5$n_grupo <- 40
+datos_20_6$X <- NULL
+datos_20_6$n_grupo <- 20
+datos_30_6$X <- NULL
+datos_30_6$n_grupo <- 30
+datos_40_6$X <- NULL
+datos_40_6$n_grupo <- 40
+
+datos_4 <- bind_rows(datos_20_4, datos_30_4, datos_40_4)
+datos_5 <- bind_rows(datos_20_5, datos_30_5, datos_40_5)
+datos_6 <- bind_rows(datos_20_6, datos_30_6, datos_40_6)
+
+datos_4$grupo <- as.factor(datos_4$grupo)
+datos_4$n_grupo <- as.factor(datos_4$n_grupo)
+
+datos_5$grupo <- as.factor(datos_5$grupo)
+datos_5$n_grupo <- as.factor(datos_5$n_grupo)
+
+datos_6$grupo <- as.factor(datos_6$grupo)
+datos_6$n_grupo <- as.factor(datos_6$n_grupo)
+
+p <- ggplot(datos_4, aes(x = grupo, y = aciertos, fill = n_grupo)) +
+    geom_col(width = 0.75, position = "dodge") +
+    labs(
+        title = "Aciertos por grupo y n (k = 4)",
+        x = "",
+        y = "Número de aciertos",
+    ) +
+    theme_minimal()
+
+print(p)
+
+ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_4k.png", plot = p, width = 10, height = 6, dpi = 300)
+
+p <- ggplot(datos_5, aes(x = grupo, y = aciertos, fill = n_grupo)) +
+    geom_col(width = 0.75, position = "dodge") +
+    labs(
+        title = "Aciertos por grupo y n (k = 5)",
+        x = "",
+        y = "Número de aciertos",
+    ) +
+    theme_minimal()
+
+print(p)
+
+ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_5k.png", plot = p, width = 10, height = 6, dpi = 300)
+
+p <- ggplot(datos_6, aes(x = grupo, y = aciertos, fill = n_grupo)) +
+    geom_col(width = 0.75, position = "dodge") +
+    labs(
+        title = "Aciertos por grupo y n (k = 6)",
+        x = "",
+        y = "Número de aciertos",
+    ) +
+    theme_minimal()
+
+print(p)
+
+ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_6k.png", plot = p, width = 10, height = 6, dpi = 300)
+
+## Análisis estadísticos auxiliares ----
+
+# Sacamos los datos.
+datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g4.csv")
+datos_20_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g5.csv")
+datos_20_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g6.csv")
+datos_30_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g4.csv")
+datos_30_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g5.csv")
+datos_30_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n30_g6.csv")
+datos_40_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g4.csv")
+datos_40_5 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g5.csv")
+datos_40_6 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n40_g6.csv")
+
+# Sacamos la tabla.
+tabla <- rbind(datos_20_4, datos_30_4, datos_40_4, datos_20_5, datos_30_5, datos_40_5, datos_20_6, datos_30_6, datos_40_6)
+
+tabla$aciertos <- as.numeric(tabla$aciertos)
+
+# Obtenemos las probabilidades.
+tabla[1:12,]$aciertos <- tabla[1:12,]$aciertos/3000 # Máximos aciertos para k = 4.
+tabla[13:24,]$aciertos <- tabla[13:24,]$aciertos/5000 # Máximos aciertos para k = 5.
+tabla[25:36,]$aciertos <- tabla[25:36,]$aciertos/7500 # Máximos aciertos para k = 6.
+
+# Análisis 1: n, k y la naturaleza de los grupos afectan a la probabilidad de acierto: ANOVA de tres vías + 'post hoc'.
+
+# Comprobamos supuestos.
+shapiro.test(tabla[tabla$grupo == 1,]$aciertos)
+shapiro.test(tabla[tabla$grupo == 2,]$aciertos)
+shapiro.test(tabla[tabla$grupo == 3,]$aciertos)
+shapiro.test(tabla[tabla$grupo == 4,]$aciertos)
+
+bartlett.test(aciertos ~ grupo, data = tabla)
+
+# Las variables son normales, pero heterocedásticas: corrección HC3.
+
+# Modificamos la tabla.
+tabla_1 <- tabla
+
+tabla_1$n[1:12] <- 20
+tabla_1$n[13:24] <- 30
+tabla_1$n[25:36] <- 40
+
+tabla_1$k <- rep(c(4, 5, 6), times = 3, each = 4)
+
+tabla_1$grupo <- factor(tabla_1$grupo)
+
+modelo <- lm(aciertos ~ n * k * grupo, data = tabla_1)
+
+Anova(modelo, white.adjust = "hc3")
+
+# 'Post hoc' para n:grupo.
+tabla_1$ngrupo <- interaction(tabla_1$n, tabla_1$grupo)
+
+print(games_howell_test(tabla_1, aciertos ~ ngrupo), n = 66)
+
+# 'Post hoc' para k:grupo.
+tabla_1$kgrupo <- interaction(tabla_1$k, tabla_1$grupo)
+
+print(games_howell_test(tabla_1, aciertos ~ kgrupo), n = 66)
 
 # Guardado de información ----
 writeLines(capture.output(sessionInfo()), "sessionInfo.txt")
