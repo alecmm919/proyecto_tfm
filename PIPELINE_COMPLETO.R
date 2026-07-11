@@ -1,39 +1,13 @@
-# Título: PIPELINE_COMPLETO.R
+# Título: PIPEÑINE_COMPLETO.R
 #
 # Autor: Alejandro M.
 #
-# Descripción: Este archivo contiene todo el proyecto.
-
-# Librerías, carga y configuraciones generales ----
-set.seed(117) # Semilla para la reproducibilidad.
-
-library(dplyr)
-library(nortest)
-library(readr)
-library(utils)
-library(car)
-library(ggplot2)
-library(rstatix)
-library(ggpubr)
-library(rpart)
-library(grDevices)
-library(rpart.plot)
-library(caret)
-library(stringr)
-library(ks)
-library(FSA)
-library(nnet)
-library(lattice)
-library(MASS)
-library(RVAideMemoire)
-library(purrr)
-
-# Parte 0: Definición de funciones ----
-Título: 00_funciones.R
-#
-# Autor: Alejandro M.
-#
-# Descripción: Este 'script' únicamente contendrá funciones definidas para ser usadas en otros 'scripts', además de la semilla de reproducibilidad.
+# Descripción: Este archivo contiene todos los 'scripts' del proyecto en un solo 'pipeline'.
+# TODO:
+    # Limpiar los source repetidos (hecho).
+    # Dividir el código en partes.
+    # Quitar comentarios sobrantes.
+    # Comprobar que corre
 
 set.seed(117) # Semilla para la reproducibilidad.
 
@@ -547,15 +521,17 @@ escribir_resultado <- function(datos_corte, clasica, archivo, homocedastico) { #
     resultado <- read_csv(temporal, show_col_types = FALSE)
     
     write_csv(resultado, archivo, append = file.exists(archivo), col_names = !file.exists(archivo))
-}
+}# Título: 01a_preparar_datos_reales.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' pretende hacer un análisis exploratorio de variables paramétricas. Para ello, se midieron los LVIDs (left ventricular internal diameter) tras tres semanas con los ratones sometidos a un tratamiento: control, piridostigmina, isoprenalina o ambos a la vez. Normalmente se asocia su aumento con la presencia de una patología cardíaca. En el artículo de referencia, existe un .csv con datos y en este 'scripts' se pretenden disponer en formato 'tidy' para posteriores análisis.
+#
+# Referencia: Marinkovic et al., 2026.
 
-message("Funciones cargadas.")
+# Librerías y carga:
 
-# Parte 1: Simulación de datos ----
-
-message("Iniciando simulaciones.")
-
-## Caso 1 ----
+library(tidyverse)
 
 # Cargamos los datos y los limpiamos.
 datos <- read.csv("datos/reales/01_corazon.csv", sep = ";")
@@ -582,8 +558,15 @@ write_csv(datos, "datos/reales/01a_corazon_tidy.csv")
 estadisticos_01 <- generar_estadisticos(datos, "grupo")
 
 # Guardamos los estadísticos.
-write_csv(estadisticos_01, "datos/reales/estadisticos/01a_estadisticos.csv")
+write_csv(estadisticos_01, "datos/reales/estadisticos/01a_estadisticos.csv")# Título: 01b_simular_datos.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico normal y homocedástico. Los datos son independientes. Se generan 20, 30 y 40 datos.
 
+# Librerías y carga:
+
+library(tidyverse)
 
 datos_reales <- read.csv("datos/reales/01a_corazon_tidy.csv")
 estadisticos_real <- read.csv("datos/reales/estadisticos/01a_estadisticos.csv")
@@ -608,7 +591,15 @@ for (n in c(20, 30, 40)){
     # Guardamos.
     comprobaciones_01(simulados, paste0("datos/simulados/01b_corazon_", n, ".csv"), paste0("datos/simulados/estadisticos/01b_corazon_", n, ".csv"))
 }
+# Título: 01c_simular_datos_6g_n20.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico normal y homocedástico. Los datos son independientes. Se generan 20 datos en 6 grupos. Los dos grupos extra se generarán en todos los casos con los mismos criterios: el grupo 5 es la media de todos los grupos, el grupo 6 es la media de los dos grupos con media más baja.
 
+# Librerías y carga:
+
+library(tidyverse)
 
 n <- 20
 
@@ -664,7 +655,15 @@ simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6",
 simulados$gravedad <- factor(simulados$grupo)
 
 # Guardamos.
-comprobaciones_01(simulados, "datos/simulados/01c_corazon_6g_n20.csv", "datos/simulados/estadisticos/01c_corazon_6g_n20.csv")
+comprobaciones_01(simulados, "datos/simulados/01c_corazon_6g_n20.csv", "datos/simulados/estadisticos/01c_corazon_6g_n20.csv")# Título: 01d_simular_datos_desbalanceados.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico normal y homocedástico. Los datos son independientes. En este caso, los grupos tienen distinto número de datos. Estos datos tienen únicamente objetivos exploratorios, así que se han desbalanceado arbitrariamente.
+
+# Librerías y carga:
+
+library(tidyverse)
 
 # Generamos grupos desbalanceados
 n <- c(15, 20, 25, 30)
@@ -689,8 +688,15 @@ simulados <- datos_reales %>%
 simulados$gravedad <- factor(simulados$grupo)
 
 # Guardamos.
-comprobaciones_01(simulados, "datos/simulados/01d_corazon_desbalanceados.csv", "datos/simulados/estadisticos/01c_corazon_desbalanceados.csv")
+comprobaciones_01(simulados, "datos/simulados/01d_corazon_desbalanceados.csv", "datos/simulados/estadisticos/01c_corazon_desbalanceados.csv")# Título: 01e_simular_datos_6g_n40.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos de la misma forma que en el 'script' 01c, pero con un valor de n = 40.
 
+# Librerías y carga:
+
+library(tidyverse)
 
 n <- 40 # General para todos los grupos.
 
@@ -745,9 +751,19 @@ simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6",
 simulados$gravedad <- factor(simulados$grupo)
 
 # Guardamos.
-comprobaciones_01(simulados, "datos/simulados/01e_corazon_6g_n40.csv", "datos/simulados/estadisticos/01e_corazon_6g_n40.csv")
+comprobaciones_01(simulados, "datos/simulados/01e_corazon_6g_n40.csv", "datos/simulados/estadisticos/01e_corazon_6g_n40.csv")# Título: 02a_preparar_datos_reales.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' pretende hacer una disposición en formato 'tidy' de datos procedentes de variables no normales, pero sí homocedásticas. Para ello, se mide la expresión del gen BRCA1 en 4 de sus posibles variantes en el extremo N-terminal. Se mide con respecto a la actividad del alelo silvestre.
+#
+# Referencia: Carvalho et al., 2014.
 
-## Caso 2 ----
+# Librerías y carga:
+
+library(tidyverse)
+library(car)
+library(stringr)
 
 # Importamos los datos y los limpiamos. Los del 'paper' pusieron un punto separador del mil y también del decimal.
 datos <- read.csv("datos/reales/02_brca.csv", sep = ";")
@@ -770,8 +786,17 @@ leveneTest(valor ~ grupo, data = datos)
 estadisticos_02 <- generar_estadisticos_np(datos, "grupo")
 
 write_csv(estadisticos_02, "datos/reales/estadisticos/02a_estadisticos.csv")
-write_csv(datos, "datos/reales/02a_brca_tidy.csv")
+write_csv(datos, "datos/reales/02a_brca_tidy.csv")# Título: 02b_simular_datos.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico de variables homocedásticas, pero no normales. Para ello, se toma la desviación de cada dato y se genera un nuevo dato tomando estas desviaciones pseudoaleatoriamente. Se generan 4 grupos de n = 20, n = 30 y n = 40.
 
+#Librerías y carga:
+
+library(tidyverse)
+library(car)
+library(nortest)
 
 datos_reales <- read_csv("datos/reales/02a_brca_tidy.csv")
 estadisticos_real <- read_csv("datos/reales/estadisticos/02a_estadisticos.csv")
@@ -802,8 +827,17 @@ for (n in c(20, 30, 40)){
     # Comprobamos que los supuestos paramétricos se respetan con respecto a los datos originales.
     simulados$grupo <- factor(simulados$grupo)
     comprobaciones_02(simulados, datos_reales, paste0("datos/simulados/02b_brca_", n, ".csv"), paste0("datos/simulados/estadisticos/02b_brca_", n, ".csv"))
-}
+}# Título: 02c_simular_datos_6g_n20.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico de variables homocedásticas, pero no normales. Se generan dos grupos extra con los mismos criterios que en el caso del 'script' 01c.
 
+#Librerías y carga:
+
+library(tidyverse)
+library(car)
+library(nortest)
 
 n <- 20
 
@@ -845,7 +879,17 @@ simulados <- medianas_objetivo %>%
 
 # Comprobamos los supuestos.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_02(simulados, datos_reales, "datos/simulados/02c_brca_6g_n20.csv", "datos/simulados/estadisticos/02c_brca_6g_n20.csv")
+comprobaciones_02(simulados, datos_reales, "datos/simulados/02c_brca_6g_n20.csv", "datos/simulados/estadisticos/02c_brca_6g_n20.csv")# Título: 02d_simular_datos_desbalanceados.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico de variables homocedásticas, pero no normales. En este caso, los grupos tienen distinto número de datos. Estos datos tienen únicamente objetivos exploratorios, así que se han desbalanceado arbitrariamente.
+
+#Librerías y carga:
+
+library(tidyverse)
+library(car)
+library(nortest)
 
 # Generamos grupos desbalanceados
 n <- c(20, 25, 30, 15)
@@ -876,7 +920,17 @@ simulados <- datos_reales %>% # Separamos por tipo.
 
 # Comprobamos que los supuestos paramétricos se respetan con respecto a los datos originales.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_02(simulados, datos_reales, "datos/simulados/02d_brca_desbalanceados.csv", "datos/simulados/estadisticos/02d_brca_desbalanceados.csv")
+comprobaciones_02(simulados, datos_reales, "datos/simulados/02d_brca_desbalanceados.csv", "datos/simulados/estadisticos/02d_brca_desbalanceados.csv")# Título: 02e_simular_datos_6g_n40.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico de variables homocedásticas, pero no normales. Se generan dos grupos extra con 40 datos, de la misma forma que se realizó en el 02c.
+
+#Librerías y carga:
+
+library(tidyverse)
+library(car)
+library(nortest)
 
 n <- 40
 
@@ -919,52 +973,46 @@ simulados <- medianas_objetivo %>%
 # Comprobamos los supuestos.
 
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_02(simulados, datos_reales, "datos/simulados/02e_brca_6g_n40.csv", "datos/simulados/estadisticos/02e_brca_6g_n40.csv")
+comprobaciones_02(simulados, datos_reales, "datos/simulados/02e_brca_6g_n40.csv", "datos/simulados/estadisticos/02e_brca_6g_n40.csv")# Título: 03a_preparar_datos_reales.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' pretende hacer un análisis exploratorio de variables normales y heterocedásticas. Se usará el contexto del estrés en ratas. Para ello, se medirá la concentración de receptor de N-metil-d-aspartato 2. Los grupos son 1: control; 2: sometidos a estrés durante 5 días; 3: 14 y 4: 21 días, respectivamente. No se trata de las mismas ratas, por lo que los datos son independientes.
+#
+# Referencia: Han et al., 2017.
 
-## Caso 3 ----
+# Librerías y carga:
 
-n <- 40
+library(tidyverse)
 
-datos_reales <- read_csv("datos/reales/02a_brca_tidy.csv")
-estadisticos_real <- read_csv("datos/reales/estadisticos/02a_estadisticos.csv")
+# Cargamos los datos. Como ya venían en formato 'tidy', fue muy sencillo.
+datos <- read.csv("datos/reales/03_estres.csv")
 
+datos$grupo <- factor(datos$GROUP)
+datos$valor <- as.numeric(gsub(",", ".", datos$NR2A)) # Cambiamos a punto decimal.
 
-ri_global <- IQR(datos_reales$valor)
-desviacion <- (datos_reales$valor - median(datos_reales$valor)) / ri_global  # Las desviaciones la normalizamos con respecto a la mediana y al RI.
-ri_medio <- mean(estadisticos_real$RI)
-mediana_glob <- median(datos_reales$valor)
+datos$NR2A <- NULL
+datos$GROUP <- NULL
 
-# Procedemos a simular. Simulamos el resto de grupos con la misma filosofía que el 'script' 2b.
-grupos_extra <- c("G5", "G6")
-medianas_extra <- c(median(datos_reales$valor), median(datos_reales[datos_reales$grupo == "R1753T", ]$valor) + median(datos_reales[datos_reales$grupo == "Q1785H", ]$valor)) # Ponemos como medianas la mediana de todos los datos (G5), y la suma de las medianas de dos grupos (G6).
+#. Comprobamos parametricidad, y vemos que, efectivamente, la variable es normal, pero heterocedástica.
+comprobar_normalidad_shapiro(datos, "grupo", "valor")
+bartlett.test(valor ~ grupo, data=datos)
 
-medianas_objetivo <- datos_reales %>%
-    group_by(grupo) %>%
-    summarise(med_tipo = median(valor), .groups = "drop") %>%
-    bind_rows(
-        tibble(
-            grupo = grupos_extra,
-            med_tipo = medianas_extra
-        )
-    )
+# Guardamos los datos.
+write_csv(datos, "datos/reales/03a_estres_tidy.csv")
 
-simulados <- medianas_objetivo %>%
-    group_by(grupo) %>%
-    reframe(
-        {
-            med_tipo <- first(med_tipo)
-            desv <- sample(desviacion, size = n, replace = TRUE)
-            desv <- desv - median(desv)
-            desv <- desv / IQR(desv)
-            valor <- med_tipo + desv * ri_global
-            tibble(valor = valor)
-        }
-    )
+# Planteamos una exploración estadística básica. Nos servirá para las simulaciones posteriores. Los guardamos en un .csv.
+estadisticos_03 <- generar_estadisticos(datos, "grupo")
+write_csv(estadisticos_03, "datos/reales/estadisticos/03a_estadisticos.csv")# Título: 03b_simular_datos.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico del estrés en ratas. Se generan 4 grupos de n = 20, n = 30 y n = 40 cada uno.
 
-# Comprobamos los supuestos.
+# Librerías y carga:
 
-simulados$grupo <- factor(simulados$grupo)
-comprobaciones_02(simulados, datos_reales, "datos/simulados/02e_brca_6g_n40.csv", "datos/simulados/estadisticos/02e_brca_6g_n40.csv")
+library(tidyverse)
+library(car)
 
 # Cargamos los datos y convertimos en factores.
 datos_reales <- read_csv("datos/reales/03a_estres_tidy.csv") %>%
@@ -985,7 +1033,16 @@ for (n in c(20, 30, 40)){
     # Pasamos a factores los simulados y comprobamos.
     simulados$grupo <- factor(simulados$grupo)
     comprobaciones_03(simulados, datos_reales, paste0("datos/simulados/03b_estres_", n, ".csv"), paste0("datos/simulados/estadisticos/03b_estres_", n, ".csv"))
-}
+}# Título: 03c_simular_datos_6g_n20.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico del estrés en ratas. Se generan dos grupos extra bajo los mismos criterios que en el 'script' 01c.
+
+# Librerías y carga:
+
+library(tidyverse)
+library(car)
 
 n <- 20 # Número de datos.
 
@@ -1032,7 +1089,16 @@ simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6",
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_03(simulados, datos_reales, "datos/simulados/03c_estres_6g_n20.csv", "datos/simulados/estadisticos/03c_estres_6g_n20.csv")
+comprobaciones_03(simulados, datos_reales, "datos/simulados/03c_estres_6g_n20.csv", "datos/simulados/estadisticos/03c_estres_6g_n20.csv")# Título: 03d_simular_datos_desbalanceados.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico del estrés en ratas. En este caso, los grupos tienen distinto número de datos. Estos grupos desbalanceados se utilizan únicamente con fines exploratorios, por lo que se han desbalanceado arbitrariamente.
+
+# Librerías y carga:
+
+library(tidyverse)
+library(car)
 
 # Generamos grupos desbalanceados
 n <- c(25, 30, 15, 20)
@@ -1054,7 +1120,16 @@ simulados <- datos_reales %>%
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_03(simulados, datos_reales, "datos/simulados/03d_estres_desbalanceados.csv", "datos/simulados/estadisticos/03d_estres_desbalanceados.csv")
+comprobaciones_03(simulados, datos_reales, "datos/simulados/03d_estres_desbalanceados.csv", "datos/simulados/estadisticos/03d_estres_desbalanceados.csv")# Título: 03e_simular_datos_6g_n40.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico del estrés en ratas. Se generan dos grupos extra con 40 datos de la misma forma que en el 03c.
+
+# Librerías y carga:
+
+library(tidyverse)
+library(car)
 
 n <- 40 # Número de datos general.
 
@@ -1101,10 +1176,18 @@ simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6",
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_03(simulados, datos_reales, "datos/simulados/03e_estres_6g_n40.csv", "datos/simulados/estadisticos/03e_estres_6g_n40.csv")
+comprobaciones_03(simulados, datos_reales, "datos/simulados/03e_estres_6g_n40.csv", "datos/simulados/estadisticos/03e_estres_6g_n40.csv")# Título: 04a_preparar_datos_reales.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' pretende hacer un análisis exploratorio de variables no normales y heterocedásticos. Se parte de los datos del paper Zhen et al., 2024. Se pretende predecir el estadío de la fibrosis en la hepatitis B en función de la concentración de GPR.
+#
+# Referencia: Zhen et al., 2024
 
-## Caso 4 ----
+# Librerías y carga:
 
+library(tidyverse)
+library(car)
 
 # Se toman los datos desde los 5 csv publicados en el 'paper'. Y tomamos únicamente las variables que nos interesan.
 datos_0 <- read.csv("datos/reales/04_f0.csv", sep = ";")
@@ -1166,7 +1249,17 @@ comprobar_normalidad_shapiro(datos, "grupo", "valor")
 leveneTest(valor ~ grupo, data = datos) # Usamos Levene porque los datos no son normales.
 
 estadisticos_04 <- generar_estadisticos_np(datos, "grupo")
-write_csv(estadisticos_04, "datos/reales/estadisticos/04a_estadisticos.csv")
+write_csv(estadisticos_04, "datos/reales/estadisticos/04a_estadisticos.csv")# Título: 04b_simular_datos.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico del GPR como predictor de la hepatitis B. Se generan 4 grupos de n = 20, n = 30 y n = 40 usando la función kde.
+
+# Librerías y carga:
+
+library(tidyverse)
+library(car)
+library(ks)
 
 # Cargamos los datos y convertimos en factores.
 datos_reales <- read_csv("datos/reales/04a_hepatitis_tidy.csv")
@@ -1197,7 +1290,17 @@ for (n in c(20, 30, 40)){
     
     simulados$grupo <- factor(simulados$grupo, levels = levels(datos_reales$grupo))
     comprobaciones_04(simulados, datos_reales, paste0("datos/simulados/04b_hepatitis_", n, ".csv"), paste0("datos/simulados/estadisticos/04b_hepatitis_", n, ".csv"))
-}
+}# Título: 04c_simular_datos_6g_n20.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico del GPR. Se generan dos grupos extra siguiendo los mismos criterios que en el 'script' 01c.
+
+# Librerías y carga:
+
+library(tidyverse)
+library(car)
+library(ks)
 
 n <- 20
 
@@ -1268,7 +1371,17 @@ simulados <- bind_rows(simulados, sim_G5, sim_G6)
 simulados$grupo <- factor(simulados$grupo)
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
-comprobaciones_04(simulados, datos_reales, "datos/simulados/04c_hepatitis_6g_n20.csv", "datos/simulados/estadisticos/04c_hepatitis_6g_n20.csv")
+comprobaciones_04(simulados, datos_reales, "datos/simulados/04c_hepatitis_6g_n20.csv", "datos/simulados/estadisticos/04c_hepatitis_6g_n20.csv")# Título: 04d_simular_datos_desbalanceados.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico del GPR como predictor de la hepatitis B. En este caso, los grupos tienen distinto número de datos. Como se trata de una exploración, los grupos se han desbalanceado arbitrariamente.
+
+# Librerías y carga:
+
+library(tidyverse)
+library(car)
+library(ks)
 
 # Generamos números de datos pseudoaleatorios.
 var <- c(20, 25, 30, 15)
@@ -1305,7 +1418,19 @@ simulados <- datos_reales %>%
 simulados$grupo <- factor(simulados$grupo, levels = levels(datos_reales$grupo))
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
-comprobaciones_04(simulados, datos_reales, "datos/simulados/04d_hepatitis_desbalanceados.csv", "datos/simulados/estadisticos/04d_hepatitis_desbalanceados.csv")
+comprobaciones_04(simulados, datos_reales, "datos/simulados/04d_hepatitis_desbalanceados.csv", "datos/simulados/estadisticos/04d_hepatitis_desbalanceados.csv")# Título: 04e_simular_datos_6g_n40.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es generar datos para la simulación del contexto biológico del GPR como predictor de la hepatitis B. Se generan dos grupos extra con 40 datos de la misma forma que en 04c.
+
+# Librerías y carga:
+
+library(tidyverse)
+library(car)
+library(ks)
+
+n <- 40
 
 # Cargamos los datos y convertimos en factores.
 datos_reales <- read_csv("datos/reales/04a_hepatitis_tidy.csv")
@@ -1374,9 +1499,15 @@ simulados <- bind_rows(simulados, sim_G5, sim_G6)
 simulados$grupo <- factor(simulados$grupo)
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
-comprobaciones_04(simulados, datos_reales, "datos/simulados/04e_hepatitis_6g_n40.csv", "datos/simulados/estadisticos/04e_hepatitis_6g_n40.csv")
+comprobaciones_04(simulados, datos_reales, "datos/simulados/04e_hepatitis_6g_n40.csv", "datos/simulados/estadisticos/04e_hepatitis_6g_n40.csv")# Título: 05_informe_simulacion.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' devuelve un informe que muestra los resultados exploratorios de las comparaciones entre estadísticos reales y simulados. El objetivo es comprobar si se han respetado los supuestos.
 
-# Informes y comparaciones ----
+# Librerías y carga:
+
+library(tidyverse)
 
 # Cargamos los datos reales.
 real_1 <- read.csv("datos/reales/estadisticos/01a_estadisticos.csv")
@@ -1482,7 +1613,17 @@ write.csv(informe_2_no_normal_homo, file = "resultados/resultados_exploratorios/
 write.csv(informe_3_normal_hetero, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso3.csv")
 write.csv(informe_4_no_normal_hetero, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso4.csv")
 
-# Podemos ver que se conservan los estadísticos y distribuciones.
+# Podemos ver que se conservan los estadísticos y distribuciones.# Título: 06_exploracion_general.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' se pretende hacer un análisis de los datos simulados generados en los 'scripts' 1-4 mediante técnicas de estadística clásica en función de las propiedades de cada caso.
+
+# Librerías y carga:
+
+library(tidyverse)
+library(FSA)
+library(rstatix)
 
 # Importamos todos los datos simulados.
 lista_1 <- list.files(path = "datos/simulados", pattern = "^01", full.names = TRUE)
@@ -1528,9 +1669,18 @@ for (i in 1:length(lista_1)){
     plot_contrastes(caso_3, paste("Contexto normal heterocedástico (", tit, ")"), "games-howell", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_03_", tit, ".png"))
     
     plot_contrastes(caso_4, paste("Contexto no normal heterocedástico (", tit, ")"), "dunn", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_04_", tit, ".png"))
-}
+}# Título: 07_arboles_e1.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' se pretende generar los árboles de decisión y sus matrices de confusión para los datos generados.
 
-# Generación de árboles y comparación ----
+# Librerías y carga:
+
+library(tidyverse)
+library(rpart)
+library(rpart.plot)
+library(caret)
 
 # Cargamos los datos simulados.
 lista_1 <- list.files(path = "datos/simulados", pattern = "^01", full.names = TRUE)
@@ -1570,7 +1720,18 @@ for (i in 1:length(lista_1)){
     matriz_confusion(caso_2, paste0("resultados/resultados_exploratorios/arboles/07_matriz_02_", tit, ".png"))
     matriz_confusion(caso_3, paste0("resultados/resultados_exploratorios/arboles/07_matriz_03_", tit, ".png"))
     matriz_confusion(caso_4, paste0("resultados/resultados_exploratorios/arboles/07_matriz_04_", tit, ".png"))
-}
+}# Título: 08_comparacion_separaciones.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' se pretende comparar los resultados para las distintos grupos de datos simulados del proyecto. Es decir, compara, para cada caso y cada grupo, qué se ha separado por estadística clásica y qué no se ha separado. Lo mismo se realiza con los árboles de decisión. Los datos se dejan preparados para el 'script' 09.
+
+# Librerías y carga:
+
+
+library(rstatix)
+library(dplyr)
+library(rpart)
 
 # Cargamos los archivos con un bucle, cogiendo solo los .csv. Calculamos los estadísticos d de Cohen. Sacamos las columnas que interesan.
 archivos <- list.files(path = "datos/simulados", pattern = "\\.csv$", full.names = TRUE)
@@ -1621,7 +1782,19 @@ for (i in archivos) { # Bucle para cada contexto. Generaremos una tabla por grup
         # Aplicamos la comparación y guardamos.
         comparar_clasica_arbol_tamano(datos, clasica, paste0("resultados/resultados_exploratorios/tablas_comparativas/08_comparacion_cla_arb_0", substr(i, 18, 18), "_", n, ".csv"), homocedastico = TRUE)
     }
-}
+}# Título: 09_analisis_aciertos.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' se analizan los resultados de la comparación de aciertos entre árboles y estadística clásica. Se cuenta el número de aciertos en cada caso.
+
+# Librerías y carga:
+
+
+library(rstatix)
+library(dplyr)
+library(ggplot2)
+library(car)
 
 # Cargamos los datos.
 datos <- list.files(path = "resultados/resultados_exploratorios/tablas_comparativas", pattern = "\\.csv$", full.names = TRUE)
@@ -1738,9 +1911,16 @@ resultados <- lapply(tablas, function(tabla) {
     cor.test(scores[validos], prop_acierto[validos], method = "spearman", exact = FALSE)
 })
 
-resultados
+resultados# Título: 10a_grupos_shannon.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En el 'script' 09, parece que el desbalanceo de los grupos afecta al rendimiento de los árboles en todos los casos. En este 'script' se pretende hacer un nuevo análisis en el que se buscará la probabilidad de acierto del árbol en función de la entropía de Shannon de los grupos. Como se va a intentar un número relativamente alto de intentos, no se representarán árboles con rpart.plot.
 
-# Análisis Shannon ----
+# Librerías y carga:
+
+library(tidyverse)
+library(rpart)
 
 # Para contar con más margen, partimos de los datos de la etapa 3 con n = 40.
 caso_1 <- read.csv("datos/simulados/01b_corazon_40.csv")
@@ -1857,7 +2037,22 @@ for (i in 1:500){
     )
 }
 
-write_csv(resultados, file = "resultados/resultados_finales/shannon/10a_entropia_shannon.csv")
+write_csv(resultados, file = "resultados/resultados_finales/shannon/10a_entropia_shannon.csv")# Título: 10b_regresion_shannon.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' realizaremos una regresión COM-Poisson para buscar relaciones entre H y la probabilidad de acierto.
+
+# Librerías y carga:
+
+
+library(nnet)
+library(tidyverse)
+library(car)
+library(lattice)
+library(ggplot2)
+library(MASS)
+library(RVAideMemoire)
 
 datos <- read_csv("resultados/resultados_finales/shannon/10a_entropia_shannon.csv")
 
@@ -1914,7 +2109,15 @@ hacer_regresion_binomial(
 # Estudiamos la correlación.
 for (i in 1:4){
     print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
-}
+}# Título: 11a_grupos_shannon_6g.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' se repetirá lo mismo que en el 10a y 10b, pero con 6 grupos. La Entropía de Shannon máxima depende de k, así que debe normalizarse.
+
+# Librerías y carga:
+
+library(tidyverse)
 
 caso_1 <- read.csv("datos/simulados/01e_corazon_6g_n40.csv")
 caso_2 <- read.csv("datos/simulados/02e_brca_6g_n40.csv")
@@ -2035,7 +2238,21 @@ for (i in 1:500){
     )
 }
 
-write_csv(resultados, file = "resultados/resultados_finales/shannon/11a_entropia_shannon_6g.csv")
+write_csv(resultados, file = "resultados/resultados_finales/shannon/11a_entropia_shannon_6g.csv")# Título: 11b_regresion_shannon_6g.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' realizaremos una regresión para buscar relaciones entre H y la probabilidad de acierto, esta vez con 6 grupos.
+
+# Librerías y carga:
+
+
+library(nnet)
+library(tidyverse)
+library(car)
+library(lattice)
+library(ggplot2)
+library(MASS)
 
 datos <- read_csv("resultados/resultados_finales/shannon/11a_entropia_shannon_6g.csv")
 
@@ -2082,7 +2299,15 @@ hacer_regresion_binomial(
 # Estudiamos la correlación.
 for (i in 1:4){
     print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
-}
+}# Título: 12a_grupos_shannon_5g.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' se repetirá lo mismo que en el 10a y 10b, pero con 5 grupos. La Entropía de Shannon depende de k, así que debe normalizarse.
+
+# Librerías y carga:
+
+library(tidyverse)
 
 caso_1 <- read.csv("datos/simulados/01e_corazon_6g_n40.csv")
 caso_2 <- read.csv("datos/simulados/02e_brca_6g_n40.csv")
@@ -2203,7 +2428,21 @@ for (i in 1:500){
     )
 }
 
-write_csv(resultados, file = "resultados/resultados_finales/shannon/12a_entropia_shannon_5g.csv")
+write_csv(resultados, file = "resultados/resultados_finales/shannon/12a_entropia_shannon_5g.csv")# Título: 12b_regresion_shannon_5g.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' realizaremos una regresión para buscar relaciones entre H y la probabilidad de acierto, esta vez con 5 grupos.
+
+# Librerías y carga:
+
+
+library(nnet)
+library(tidyverse)
+library(car)
+library(lattice)
+library(ggplot2)
+library(MASS)
 
 datos <- read_csv("resultados/resultados_finales/shannon/12a_entropia_shannon_5g.csv")
 
@@ -2250,7 +2489,16 @@ hacer_regresion_binomial(
 # Estudiamos la correlación.
 for (i in 1:4){
     print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
-}
+}# Título: 13a_grupos_shannon.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' se repetirá lo mismo que en el 10a y 10b, pero con 3 grupos. La Entropía de Shannon depende de k, así que debe normalizarse. Eliminamos uno de los dos grupos más similares de cada caso.
+
+# Librerías y carga:
+
+library(tidyverse)
+library(rpart)
 
 # Para contar con más margen, partimos de los datos de la etapa 3 con n = 40.
 caso_1 <- read.csv("datos/simulados/01b_corazon_40.csv")
@@ -2375,7 +2623,21 @@ for (i in 1:500){
     )
 }
 
-write_csv(resultados, file = "resultados/resultados_finales/shannon/13a_entropia_shannon_3g.csv")
+write_csv(resultados, file = "resultados/resultados_finales/shannon/13a_entropia_shannon_3g.csv")# Título: 13b_regresion_shannon.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: En este 'script' realizaremos una regresión para buscar relaciones entre H y la probabilidad de acierto.
+
+# Librerías y carga:
+
+
+library(nnet)
+library(tidyverse)
+library(car)
+library(lattice)
+library(ggplot2)
+library(MASS)
 
 datos <- read_csv("resultados/resultados_finales/shannon/13a_entropia_shannon_3g.csv")
 
@@ -2422,11 +2684,17 @@ hacer_regresion_binomial(
 # Estudiamos la correlación.
 for (i in 1:4){
     print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
-}
+}# Título: 14_analisis_repeticiones.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: El objetivo de este 'script' es repetir muchas veces la simulación de datos, comparación de la separación por estadística clásica y árboles y recuento de aciertos para buscar tendencias estadísticas ('scripts' 1-4, 8 y 9). Para ello, tomamos los 60 datos generados por los apartados c y e de los primeros 4 'scripts' y los combinamos pseudoaleatoriamente para poder extraer muestras de distintos subgrupos de datos.
 
-# Análisis adicionales ----
+#Librerías y carga:
 
-## Repetición del análisis ----
+library(tidyverse)
+library(purrr)
+library(rstatix)
 
 # Cargamos los datos.
 archivos_1 <- list.files("datos/simulados", pattern = "^01[c-e]_corazon_6g_n[0-9][0-9].csv$", full.names = TRUE)
@@ -2610,9 +2878,18 @@ p <- ggplot(datos_6, aes(x = grupo, y = aciertos, fill = n_grupo)) +
 
 print(p)
 
-ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_6k.png", plot = p, width = 10, height = 6, dpi = 300)
+ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_6k.png", plot = p, width = 10, height = 6, dpi = 300)# Título: 15_analisis_adicionales.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: Este 'script' tiene como objetivo realizar pruebas sobre los resultados del proyecto para su inclusión en la memoria con rigor estadístico.
 
-## Análisis estadísticos auxiliares ----
+## Librerías y carga:
+
+library(stats)
+library(rstatix)
+library(tidyverse)
+library(car)
 
 # Sacamos los datos.
 datos_20_4 <- read.csv("resultados/resultados_finales/repeticiones/14_aciertos_n20_g4.csv")
@@ -2670,7 +2947,20 @@ print(games_howell_test(tabla_1, aciertos ~ ngrupo), n = 66)
 # 'Post hoc' para k:grupo.
 tabla_1$kgrupo <- interaction(tabla_1$k, tabla_1$grupo)
 
-print(games_howell_test(tabla_1, aciertos ~ kgrupo), n = 66)
+print(games_howell_test(tabla_1, aciertos ~ kgrupo), n = 66)# Título: 99_correr_todo.R
+#
+# Autor: Alejandro M.
+#
+# Descripción: Este 'script' ejecuta, en orden, todo el proyecto. Además, genera el archivo de 'sessionInfo.txt' con toda la información relacionada con los paquetes. Nótese que este archivo solo se actualiza cuando se ejecuta este 'script'.
 
-# Guardado de información ----
+scripts <- list.files(path = "scripts", pattern = "\\.R$", full.names = TRUE) # Cogemos todos los 'scripts'.
+
+scripts <- scripts[!grepl("/(00_funciones.R|99_correr_todo.R)", scripts)] # Quitamos el 00 y el 99.
+
+for (s in scripts) { # Corre todos los 'scripts' con un bucle.
+    message("Ejecutando: ", s)
+    source(s)
+}
+
+# Guardamos la información.
 writeLines(capture.output(sessionInfo()), "sessionInfo.txt")
