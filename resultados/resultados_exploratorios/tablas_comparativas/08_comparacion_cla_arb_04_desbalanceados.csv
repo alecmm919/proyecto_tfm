@@ -1,0 +1,7 @@
+"","grupo","separado_clasica","separado_arbol","magnitude"
+"1","GPR_0-GPR_2",FALSE,FALSE,"small"
+"2","GPR_0-GPR_3",FALSE,FALSE,"moderate"
+"3","GPR_0-GPR_4",FALSE,TRUE,"moderate"
+"4","GPR_2-GPR_3",TRUE,FALSE,"negligible"
+"5","GPR_2-GPR_4",FALSE,TRUE,"small"
+"6","GPR_3-GPR_4",FALSE,TRUE,"small"

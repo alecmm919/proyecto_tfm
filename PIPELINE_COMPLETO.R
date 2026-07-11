@@ -1,13 +1,14 @@
-# Título: PIPEÑINE_COMPLETO.R
+# Título: PIPELINE_COMPLETO.R
 #
 # Autor: Alejandro M.
 #
-# Descripción: Este archivo contiene todos los 'scripts' del proyecto en un solo 'pipeline'.
-# TODO:
-    # Limpiar los source repetidos (hecho).
-    # Dividir el código en partes.
-    # Quitar comentarios sobrantes.
-    # Comprobar que corre
+# Descripción: Este 'script' contiene el 'pipeline' completo del proyecto. Se han fusionado los distintos 'scripts' en uno solo.
+#
+# Tiempo de ejecución aproximado: 
+
+# TODO: limpiar librerías, comprobar funcionamiento y resultados.
+
+inicio <- Sys.time()
 
 set.seed(117) # Semilla para la reproducibilidad.
 
@@ -521,7 +522,9 @@ escribir_resultado <- function(datos_corte, clasica, archivo, homocedastico) { #
     resultado <- read_csv(temporal, show_col_types = FALSE)
     
     write_csv(resultado, archivo, append = file.exists(archivo), col_names = !file.exists(archivo))
-}# Título: 01a_preparar_datos_reales.R
+}
+
+# Título: 01a_preparar_datos_reales.R
 #
 # Autor: Alejandro M.
 #
@@ -558,7 +561,9 @@ write_csv(datos, "datos/reales/01a_corazon_tidy.csv")
 estadisticos_01 <- generar_estadisticos(datos, "grupo")
 
 # Guardamos los estadísticos.
-write_csv(estadisticos_01, "datos/reales/estadisticos/01a_estadisticos.csv")# Título: 01b_simular_datos.R
+write_csv(estadisticos_01, "datos/reales/estadisticos/01a_estadisticos.csv")
+
+# Título: 01b_simular_datos.R
 #
 # Autor: Alejandro M.
 #
@@ -591,6 +596,8 @@ for (n in c(20, 30, 40)){
     # Guardamos.
     comprobaciones_01(simulados, paste0("datos/simulados/01b_corazon_", n, ".csv"), paste0("datos/simulados/estadisticos/01b_corazon_", n, ".csv"))
 }
+
+
 # Título: 01c_simular_datos_6g_n20.R
 #
 # Autor: Alejandro M.
@@ -655,7 +662,9 @@ simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6",
 simulados$gravedad <- factor(simulados$grupo)
 
 # Guardamos.
-comprobaciones_01(simulados, "datos/simulados/01c_corazon_6g_n20.csv", "datos/simulados/estadisticos/01c_corazon_6g_n20.csv")# Título: 01d_simular_datos_desbalanceados.R
+comprobaciones_01(simulados, "datos/simulados/01c_corazon_6g_n20.csv", "datos/simulados/estadisticos/01c_corazon_6g_n20.csv")
+
+# Título: 01d_simular_datos_desbalanceados.R
 #
 # Autor: Alejandro M.
 #
@@ -688,7 +697,9 @@ simulados <- datos_reales %>%
 simulados$gravedad <- factor(simulados$grupo)
 
 # Guardamos.
-comprobaciones_01(simulados, "datos/simulados/01d_corazon_desbalanceados.csv", "datos/simulados/estadisticos/01c_corazon_desbalanceados.csv")# Título: 01e_simular_datos_6g_n40.R
+comprobaciones_01(simulados, "datos/simulados/01d_corazon_desbalanceados.csv", "datos/simulados/estadisticos/01c_corazon_desbalanceados.csv")
+
+# Título: 01e_simular_datos_6g_n40.R
 #
 # Autor: Alejandro M.
 #
@@ -751,7 +762,9 @@ simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6",
 simulados$gravedad <- factor(simulados$grupo)
 
 # Guardamos.
-comprobaciones_01(simulados, "datos/simulados/01e_corazon_6g_n40.csv", "datos/simulados/estadisticos/01e_corazon_6g_n40.csv")# Título: 02a_preparar_datos_reales.R
+comprobaciones_01(simulados, "datos/simulados/01e_corazon_6g_n40.csv", "datos/simulados/estadisticos/01e_corazon_6g_n40.csv")
+
+# Título: 02a_preparar_datos_reales.R
 #
 # Autor: Alejandro M.
 #
@@ -786,7 +799,9 @@ leveneTest(valor ~ grupo, data = datos)
 estadisticos_02 <- generar_estadisticos_np(datos, "grupo")
 
 write_csv(estadisticos_02, "datos/reales/estadisticos/02a_estadisticos.csv")
-write_csv(datos, "datos/reales/02a_brca_tidy.csv")# Título: 02b_simular_datos.R
+write_csv(datos, "datos/reales/02a_brca_tidy.csv")
+
+# Título: 02b_simular_datos.R
 #
 # Autor: Alejandro M.
 #
@@ -827,7 +842,9 @@ for (n in c(20, 30, 40)){
     # Comprobamos que los supuestos paramétricos se respetan con respecto a los datos originales.
     simulados$grupo <- factor(simulados$grupo)
     comprobaciones_02(simulados, datos_reales, paste0("datos/simulados/02b_brca_", n, ".csv"), paste0("datos/simulados/estadisticos/02b_brca_", n, ".csv"))
-}# Título: 02c_simular_datos_6g_n20.R
+}
+
+# Título: 02c_simular_datos_6g_n20.R
 #
 # Autor: Alejandro M.
 #
@@ -879,7 +896,9 @@ simulados <- medianas_objetivo %>%
 
 # Comprobamos los supuestos.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_02(simulados, datos_reales, "datos/simulados/02c_brca_6g_n20.csv", "datos/simulados/estadisticos/02c_brca_6g_n20.csv")# Título: 02d_simular_datos_desbalanceados.R
+comprobaciones_02(simulados, datos_reales, "datos/simulados/02c_brca_6g_n20.csv", "datos/simulados/estadisticos/02c_brca_6g_n20.csv")
+
+# Título: 02d_simular_datos_desbalanceados.R
 #
 # Autor: Alejandro M.
 #
@@ -920,7 +939,9 @@ simulados <- datos_reales %>% # Separamos por tipo.
 
 # Comprobamos que los supuestos paramétricos se respetan con respecto a los datos originales.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_02(simulados, datos_reales, "datos/simulados/02d_brca_desbalanceados.csv", "datos/simulados/estadisticos/02d_brca_desbalanceados.csv")# Título: 02e_simular_datos_6g_n40.R
+comprobaciones_02(simulados, datos_reales, "datos/simulados/02d_brca_desbalanceados.csv", "datos/simulados/estadisticos/02d_brca_desbalanceados.csv")
+
+# Título: 02e_simular_datos_6g_n40.R
 #
 # Autor: Alejandro M.
 #
@@ -973,7 +994,9 @@ simulados <- medianas_objetivo %>%
 # Comprobamos los supuestos.
 
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_02(simulados, datos_reales, "datos/simulados/02e_brca_6g_n40.csv", "datos/simulados/estadisticos/02e_brca_6g_n40.csv")# Título: 03a_preparar_datos_reales.R
+comprobaciones_02(simulados, datos_reales, "datos/simulados/02e_brca_6g_n40.csv", "datos/simulados/estadisticos/02e_brca_6g_n40.csv")
+
+# Título: 03a_preparar_datos_reales.R
 #
 # Autor: Alejandro M.
 #
@@ -1003,7 +1026,9 @@ write_csv(datos, "datos/reales/03a_estres_tidy.csv")
 
 # Planteamos una exploración estadística básica. Nos servirá para las simulaciones posteriores. Los guardamos en un .csv.
 estadisticos_03 <- generar_estadisticos(datos, "grupo")
-write_csv(estadisticos_03, "datos/reales/estadisticos/03a_estadisticos.csv")# Título: 03b_simular_datos.R
+write_csv(estadisticos_03, "datos/reales/estadisticos/03a_estadisticos.csv")
+
+# Título: 03b_simular_datos.R
 #
 # Autor: Alejandro M.
 #
@@ -1033,7 +1058,9 @@ for (n in c(20, 30, 40)){
     # Pasamos a factores los simulados y comprobamos.
     simulados$grupo <- factor(simulados$grupo)
     comprobaciones_03(simulados, datos_reales, paste0("datos/simulados/03b_estres_", n, ".csv"), paste0("datos/simulados/estadisticos/03b_estres_", n, ".csv"))
-}# Título: 03c_simular_datos_6g_n20.R
+}
+
+# Título: 03c_simular_datos_6g_n20.R
 #
 # Autor: Alejandro M.
 #
@@ -1089,7 +1116,9 @@ simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6",
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_03(simulados, datos_reales, "datos/simulados/03c_estres_6g_n20.csv", "datos/simulados/estadisticos/03c_estres_6g_n20.csv")# Título: 03d_simular_datos_desbalanceados.R
+comprobaciones_03(simulados, datos_reales, "datos/simulados/03c_estres_6g_n20.csv", "datos/simulados/estadisticos/03c_estres_6g_n20.csv")
+
+# Título: 03d_simular_datos_desbalanceados.R
 #
 # Autor: Alejandro M.
 #
@@ -1120,7 +1149,9 @@ simulados <- datos_reales %>%
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_03(simulados, datos_reales, "datos/simulados/03d_estres_desbalanceados.csv", "datos/simulados/estadisticos/03d_estres_desbalanceados.csv")# Título: 03e_simular_datos_6g_n40.R
+comprobaciones_03(simulados, datos_reales, "datos/simulados/03d_estres_desbalanceados.csv", "datos/simulados/estadisticos/03d_estres_desbalanceados.csv")
+
+# Título: 03e_simular_datos_6g_n40.R
 #
 # Autor: Alejandro M.
 #
@@ -1176,7 +1207,9 @@ simulados[simulados$grupo == "G6", ] <- datos_reales[datos_reales$grupo == "G6",
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
 simulados$grupo <- factor(simulados$grupo)
-comprobaciones_03(simulados, datos_reales, "datos/simulados/03e_estres_6g_n40.csv", "datos/simulados/estadisticos/03e_estres_6g_n40.csv")# Título: 04a_preparar_datos_reales.R
+comprobaciones_03(simulados, datos_reales, "datos/simulados/03e_estres_6g_n40.csv", "datos/simulados/estadisticos/03e_estres_6g_n40.csv")
+
+# Título: 04a_preparar_datos_reales.R
 #
 # Autor: Alejandro M.
 #
@@ -1249,7 +1282,9 @@ comprobar_normalidad_shapiro(datos, "grupo", "valor")
 leveneTest(valor ~ grupo, data = datos) # Usamos Levene porque los datos no son normales.
 
 estadisticos_04 <- generar_estadisticos_np(datos, "grupo")
-write_csv(estadisticos_04, "datos/reales/estadisticos/04a_estadisticos.csv")# Título: 04b_simular_datos.R
+write_csv(estadisticos_04, "datos/reales/estadisticos/04a_estadisticos.csv")
+
+# Título: 04b_simular_datos.R
 #
 # Autor: Alejandro M.
 #
@@ -1290,7 +1325,9 @@ for (n in c(20, 30, 40)){
     
     simulados$grupo <- factor(simulados$grupo, levels = levels(datos_reales$grupo))
     comprobaciones_04(simulados, datos_reales, paste0("datos/simulados/04b_hepatitis_", n, ".csv"), paste0("datos/simulados/estadisticos/04b_hepatitis_", n, ".csv"))
-}# Título: 04c_simular_datos_6g_n20.R
+}
+
+# Título: 04c_simular_datos_6g_n20.R
 #
 # Autor: Alejandro M.
 #
@@ -1371,7 +1408,9 @@ simulados <- bind_rows(simulados, sim_G5, sim_G6)
 simulados$grupo <- factor(simulados$grupo)
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
-comprobaciones_04(simulados, datos_reales, "datos/simulados/04c_hepatitis_6g_n20.csv", "datos/simulados/estadisticos/04c_hepatitis_6g_n20.csv")# Título: 04d_simular_datos_desbalanceados.R
+comprobaciones_04(simulados, datos_reales, "datos/simulados/04c_hepatitis_6g_n20.csv", "datos/simulados/estadisticos/04c_hepatitis_6g_n20.csv")
+
+# Título: 04d_simular_datos_desbalanceados.R
 #
 # Autor: Alejandro M.
 #
@@ -1418,7 +1457,9 @@ simulados <- datos_reales %>%
 simulados$grupo <- factor(simulados$grupo, levels = levels(datos_reales$grupo))
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
-comprobaciones_04(simulados, datos_reales, "datos/simulados/04d_hepatitis_desbalanceados.csv", "datos/simulados/estadisticos/04d_hepatitis_desbalanceados.csv")# Título: 04e_simular_datos_6g_n40.R
+comprobaciones_04(simulados, datos_reales, "datos/simulados/04d_hepatitis_desbalanceados.csv", "datos/simulados/estadisticos/04d_hepatitis_desbalanceados.csv")
+
+# Título: 04e_simular_datos_6g_n40.R
 #
 # Autor: Alejandro M.
 #
@@ -1499,7 +1540,9 @@ simulados <- bind_rows(simulados, sim_G5, sim_G6)
 simulados$grupo <- factor(simulados$grupo)
 
 # Hacemos las comprobaciones: se mantiene la falta de parametricidad y los estadísticos.
-comprobaciones_04(simulados, datos_reales, "datos/simulados/04e_hepatitis_6g_n40.csv", "datos/simulados/estadisticos/04e_hepatitis_6g_n40.csv")# Título: 05_informe_simulacion.R
+comprobaciones_04(simulados, datos_reales, "datos/simulados/04e_hepatitis_6g_n40.csv", "datos/simulados/estadisticos/04e_hepatitis_6g_n40.csv")
+
+# Título: 05_informe_simulacion.R
 #
 # Autor: Alejandro M.
 #
@@ -1613,7 +1656,9 @@ write.csv(informe_2_no_normal_homo, file = "resultados/resultados_exploratorios/
 write.csv(informe_3_normal_hetero, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso3.csv")
 write.csv(informe_4_no_normal_hetero, file = "resultados/resultados_exploratorios/informes_comparativos/05_informe_caso4.csv")
 
-# Podemos ver que se conservan los estadísticos y distribuciones.# Título: 06_exploracion_general.R
+# Podemos ver que se conservan los estadísticos y distribuciones.
+
+# Título: 06_exploracion_general.R
 #
 # Autor: Alejandro M.
 #
@@ -1669,7 +1714,9 @@ for (i in 1:length(lista_1)){
     plot_contrastes(caso_3, paste("Contexto normal heterocedástico (", tit, ")"), "games-howell", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_03_", tit, ".png"))
     
     plot_contrastes(caso_4, paste("Contexto no normal heterocedástico (", tit, ")"), "dunn", paste0("resultados/resultados_exploratorios/comparaciones_clasica_ad/06_boxplot_04_", tit, ".png"))
-}# Título: 07_arboles_e1.R
+}
+
+# Título: 07_arboles_e1.R
 #
 # Autor: Alejandro M.
 #
@@ -1720,7 +1767,9 @@ for (i in 1:length(lista_1)){
     matriz_confusion(caso_2, paste0("resultados/resultados_exploratorios/arboles/07_matriz_02_", tit, ".png"))
     matriz_confusion(caso_3, paste0("resultados/resultados_exploratorios/arboles/07_matriz_03_", tit, ".png"))
     matriz_confusion(caso_4, paste0("resultados/resultados_exploratorios/arboles/07_matriz_04_", tit, ".png"))
-}# Título: 08_comparacion_separaciones.R
+}
+
+# Título: 08_comparacion_separaciones.R
 #
 # Autor: Alejandro M.
 #
@@ -1782,7 +1831,9 @@ for (i in archivos) { # Bucle para cada contexto. Generaremos una tabla por grup
         # Aplicamos la comparación y guardamos.
         comparar_clasica_arbol_tamano(datos, clasica, paste0("resultados/resultados_exploratorios/tablas_comparativas/08_comparacion_cla_arb_0", substr(i, 18, 18), "_", n, ".csv"), homocedastico = TRUE)
     }
-}# Título: 09_analisis_aciertos.R
+}
+
+# Título: 09_analisis_aciertos.R
 #
 # Autor: Alejandro M.
 #
@@ -1903,6 +1954,10 @@ scores <- 1:4
 
 # Sacamos el índice rho de Spearman.
 resultados <- lapply(tablas, function(tabla) {
+    for (n in setdiff(niveles, rownames(tabla))) {
+        tabla <- rbind(tabla, setNames(c(0, 0), colnames(tabla)))
+        rownames(tabla)[nrow(tabla)] <- n
+    }
     tabla <- tabla[niveles, ]
     prop_acierto <- prop.table(tabla, margin = 1)[, "1"]
     
@@ -1911,7 +1966,9 @@ resultados <- lapply(tablas, function(tabla) {
     cor.test(scores[validos], prop_acierto[validos], method = "spearman", exact = FALSE)
 })
 
-resultados# Título: 10a_grupos_shannon.R
+resultados
+
+# Título: 10a_grupos_shannon.R
 #
 # Autor: Alejandro M.
 #
@@ -2037,7 +2094,9 @@ for (i in 1:500){
     )
 }
 
-write_csv(resultados, file = "resultados/resultados_finales/shannon/10a_entropia_shannon.csv")# Título: 10b_regresion_shannon.R
+write_csv(resultados, file = "resultados/resultados_finales/shannon/10a_entropia_shannon.csv")
+
+# Título: 10b_regresion_shannon.R
 #
 # Autor: Alejandro M.
 #
@@ -2109,7 +2168,9 @@ hacer_regresion_binomial(
 # Estudiamos la correlación.
 for (i in 1:4){
     print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
-}# Título: 11a_grupos_shannon_6g.R
+}
+
+# Título: 11a_grupos_shannon_6g.R
 #
 # Autor: Alejandro M.
 #
@@ -2238,7 +2299,9 @@ for (i in 1:500){
     )
 }
 
-write_csv(resultados, file = "resultados/resultados_finales/shannon/11a_entropia_shannon_6g.csv")# Título: 11b_regresion_shannon_6g.R
+write_csv(resultados, file = "resultados/resultados_finales/shannon/11a_entropia_shannon_6g.csv")
+
+# Título: 11b_regresion_shannon_6g.R
 #
 # Autor: Alejandro M.
 #
@@ -2299,7 +2362,9 @@ hacer_regresion_binomial(
 # Estudiamos la correlación.
 for (i in 1:4){
     print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
-}# Título: 12a_grupos_shannon_5g.R
+}
+
+# Título: 12a_grupos_shannon_5g.R
 #
 # Autor: Alejandro M.
 #
@@ -2428,7 +2493,9 @@ for (i in 1:500){
     )
 }
 
-write_csv(resultados, file = "resultados/resultados_finales/shannon/12a_entropia_shannon_5g.csv")# Título: 12b_regresion_shannon_5g.R
+write_csv(resultados, file = "resultados/resultados_finales/shannon/12a_entropia_shannon_5g.csv")
+
+# Título: 12b_regresion_shannon_5g.R
 #
 # Autor: Alejandro M.
 #
@@ -2489,7 +2556,9 @@ hacer_regresion_binomial(
 # Estudiamos la correlación.
 for (i in 1:4){
     print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
-}# Título: 13a_grupos_shannon.R
+}
+
+# Título: 13a_grupos_shannon.R
 #
 # Autor: Alejandro M.
 #
@@ -2623,7 +2692,9 @@ for (i in 1:500){
     )
 }
 
-write_csv(resultados, file = "resultados/resultados_finales/shannon/13a_entropia_shannon_3g.csv")# Título: 13b_regresion_shannon.R
+write_csv(resultados, file = "resultados/resultados_finales/shannon/13a_entropia_shannon_3g.csv")
+
+# Título: 13b_regresion_shannon.R
 #
 # Autor: Alejandro M.
 #
@@ -2684,7 +2755,9 @@ hacer_regresion_binomial(
 # Estudiamos la correlación.
 for (i in 1:4){
     print(spearman.ci(datos[datos$caso == i, ]$H, datos[datos$caso == i, ]$n_aciertos, nrep = 1000, conf.level = 0.95))
-}# Título: 14_analisis_repeticiones.R
+}
+
+# Título: 14_analisis_repeticiones.R
 #
 # Autor: Alejandro M.
 #
@@ -2878,7 +2951,9 @@ p <- ggplot(datos_6, aes(x = grupo, y = aciertos, fill = n_grupo)) +
 
 print(p)
 
-ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_6k.png", plot = p, width = 10, height = 6, dpi = 300)# Título: 15_analisis_adicionales.R
+ggsave(filename = "resultados/resultados_finales/repeticiones/14_cambio_n_6k.png", plot = p, width = 10, height = 6, dpi = 300)
+
+# Título: 15_analisis_adicionales.R
 #
 # Autor: Alejandro M.
 #
@@ -2947,20 +3022,13 @@ print(games_howell_test(tabla_1, aciertos ~ ngrupo), n = 66)
 # 'Post hoc' para k:grupo.
 tabla_1$kgrupo <- interaction(tabla_1$k, tabla_1$grupo)
 
-print(games_howell_test(tabla_1, aciertos ~ kgrupo), n = 66)# Título: 99_correr_todo.R
-#
-# Autor: Alejandro M.
-#
-# Descripción: Este 'script' ejecuta, en orden, todo el proyecto. Además, genera el archivo de 'sessionInfo.txt' con toda la información relacionada con los paquetes. Nótese que este archivo solo se actualiza cuando se ejecuta este 'script'.
-
-scripts <- list.files(path = "scripts", pattern = "\\.R$", full.names = TRUE) # Cogemos todos los 'scripts'.
-
-scripts <- scripts[!grepl("/(00_funciones.R|99_correr_todo.R)", scripts)] # Quitamos el 00 y el 99.
-
-for (s in scripts) { # Corre todos los 'scripts' con un bucle.
-    message("Ejecutando: ", s)
-    source(s)
-}
+print(games_howell_test(tabla_1, aciertos ~ kgrupo), n = 66)
 
 # Guardamos la información.
 writeLines(capture.output(sessionInfo()), "sessionInfo.txt")
+
+final <- Sys.time()
+
+tiempo <- final - inicio
+
+tiempo
