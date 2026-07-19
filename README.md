@@ -9,14 +9,14 @@ Para mayor información sobre las librerías cargadas, consultar ```sessionInfo.
 
 ## *Script* ```PIPELINE_COMPLETO.R```
 
-Contiene todo el trabajo en un solo *script.*
+Contiene todo el trabajo en un solo *script.* Ya que en las anteriores versiones se generaron *scripts* separados, en esta simplemente se convirtieron secuencialmente en un único *pipeline.*
 
 ## Directorio de pruebas
 
 Contiene pruebas auxiliares realizadas a lo largo del proyecto y *no deben considerarse* como parte del mismo.
 
 ## Directorio de resultados
-Los resultados de este trabajo se dividen en dos grupos: exploratorios y finales. Los primeros buscan explorar las técnicas estadísticas y los árboles de decisión. Los otros, los finales, aumentan el número de repeticiones a 500 para buscar mayor potencia.
+Los resultados de este trabajo se dividen en dos grupos: exploratorios y finales. Los primeros buscan explorar las técnicas estadísticas y los árboles de decisión. Los otros, los finales, aumentan el número de repeticiones a 500 para buscar mayor potencia. La ejecución del *pipeline* crea automáticamente este directorio.
 
 ### Resultados exploratorios
 
@@ -30,3 +30,7 @@ Los resultados de este trabajo se dividen en dos grupos: exploratorios y finales
 
 - repeticiones contiene los resultados con los experimentos repetidos 500 veces.
 - shannon contiene los resultados de las regresiones CMP, también repetidas 500 veces.
+
+## Diretorio de datos
+
+Contiene los datos reales y simulados. El directorio de los ```datos/reales``` **es la única entrada a este proyecto,** y sin este no puede ejecutarse. El *pipeline* crea automáticamente el directorio de los datos simulados.

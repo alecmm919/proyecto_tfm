@@ -6,9 +6,13 @@ Todas las versiones de este proyecto quedan registradas en este archivo.
 
 ### Añadido
 - *Script* único con todo el *pipeline* del trabajo.
+- En el *pipeline,* ahora se generan automáticamente los directorios de salida y se verifica que existan los de entrada, de tal forma que es más reproducible. También se genera el directorio de datos simulados con sus estadísticos.
 
 ### Eliminado
 - La carpeta con los *scripts* pasa al ```.gitignore```.
+
+### Modificado
+- El *pipeline* del trabajo se ha realizado directamente copiando los *scripts* individuales en orden para garantizar que el flujo de trabajo se mantiene.
 
 ## [1.0]
 
