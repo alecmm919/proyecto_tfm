@@ -44,8 +44,6 @@ library(MASS)
 library(RVAideMemoire)
 library(purrr)
 
-set.seed(117) # Semilla para la reproducibilidad.
-
 simular_normal_exacto <- function(x, n, mu = NULL, s = NULL){ # Esta función genera valores normales a partir de una muestra normal.
     
     if (is.null(mu) || is.null(s)) { # Si se dan estos argumentos, se usan los parámetros pasados por el usuario. Si no, se calculan automáticamente.
